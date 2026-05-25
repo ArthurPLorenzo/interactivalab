@@ -1,0 +1,220 @@
+/* ===== Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f17;
+  --bg2: #1a1a2e;
+  --surface: #16213e;
+  --surface2: #1e2d4a;
+  --text: #e8e8f0;
+  --text-muted: #7b7b9a;
+  --accent: #ff6b6b;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --toolbar-h: 64px;
+  --status-h: 36px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Top nav ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.2rem;
+  height: 44px;
+  background: var(--bg2);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.back-btn {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.back-btn:hover { color: var(--text); }
+
+.experiment-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ===== Workspace layout ===== */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 44px);
+}
+
+/* ===== Toolbar ===== */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  height: var(--toolbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* Palette swatches */
+.palette {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.active {
+  border-color: #fff;
+  transform: scale(1.18);
+}
+
+/* Custom color pick */
+.color-pick-wrap {
+  position: relative;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.color-pick-wrap input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.color-pick-icon { font-size: 1.2rem; pointer-events: none; }
+
+/* Brush size */
+.brush-size-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.brush-size-wrap label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.brush-size-wrap input[type="range"] {
+  width: 80px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.toolbar-spacer { flex: 1; }
+
+/* Buttons */
+.btn {
+  padding: 0.45rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+}
+.btn:active { transform: scale(0.96); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn--ghost {
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+}
+.btn--ghost:hover:not(:disabled) { background: rgba(255,255,255,0.14); }
+
+.btn--play {
+  background: var(--accent);
+  color: #fff;
+  min-width: 100px;
+}
+.btn--play:hover:not(:disabled) { opacity: 0.88; }
+
+.btn--stop {
+  background: #4d96ff;
+}
+
+/* ===== Canvas area ===== */
+.canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  align-items: stretch;
+}
+
+#paintCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.canvas-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255,255,255,0.12);
+  font-size: 1rem;
+  pointer-events: none;
+  text-align: center;
+  user-select: none;
+  transition: opacity 0.5s;
+}
+.canvas-hint.hidden { opacity: 0; }
+
+/* ===== Status bar ===== */
+.status-bar {
+  height: var(--status-h);
+  display: flex;
+  align-items: center;
+  padding: 0 1.2rem;
+  background: var(--bg2);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+#statusText {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ===== Playing state animations ===== */
+@keyframes pulse-play {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.btn--play.playing {
+  animation: pulse-play 1s ease-in-out infinite;
+  background: #4d96ff;
+}

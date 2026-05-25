@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InteractivaLab</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-dot" style="background:#ff6b6b"></span>
+      <span class="logo-dot" style="background:#ffd93d"></span>
+      <span class="logo-dot" style="background:#6bcb77"></span>
+      <span class="logo-dot" style="background:#4d96ff"></span>
+    </div>
+    <h1>InteractivaLab</h1>
+    <p>laboratório de experimentos interativos de arte e música</p>
+  </header>
+
+  <main class="experiments-grid">
+    <a href="/experiments/painting-sound/" class="card" data-color="#ff6b6b">
+      <canvas class="card-preview" width="300" height="170"></canvas>
+      <div class="card-body">
+        <div class="card-icon">🎨</div>
+        <h2 class="card-title">Painting → Sound</h2>
+        <p class="card-desc">Pinte e escute sua composição</p>
+      </div>
+    </a>
+
+    <a href="/experiments/zen-garden/" class="card" data-color="#b8956a">
+      <canvas class="card-preview" data-preview="zen" width="300" height="170"></canvas>
+      <div class="card-body">
+        <div class="card-icon">🪨</div>
+        <h2 class="card-title">Jardim Zen</h2>
+        <p class="card-desc">Rastele areia, mova pedras, respire</p>
+      </div>
+    </a>
+
+    <div class="card card--soon" data-color="#6bcb77">
+      <div class="card-preview card-preview--empty">
+        <span class="coming-soon-icon">🌀</span>
+      </div>
+      <div class="card-body">
+        <div class="card-icon">✦</div>
+        <h2 class="card-title">Em breve</h2>
+        <p class="card-desc">Novo experimento chegando</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>InteractivaLab © 2026</p>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

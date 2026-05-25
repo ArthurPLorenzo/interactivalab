@@ -1,0 +1,148 @@
+/* ===== Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #111108;
+  --frame: #1c1a12;
+  --frame-border: #2e2a1e;
+  --sand: #e2cfa0;
+  --text: #d4c9a8;
+  --text-muted: #7a7260;
+  --toolbar-h: 52px;
+  --topbar-h: 44px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Top nav ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.2rem;
+  height: var(--topbar-h);
+  background: var(--frame);
+  border-bottom: 1px solid var(--frame-border);
+  flex-shrink: 0;
+  transition: opacity 0.5s, transform 0.5s;
+}
+.top-bar.hidden { opacity: 0; pointer-events: none; transform: translateY(-100%); }
+
+.back-btn {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.back-btn:hover { color: var(--text); }
+
+.experiment-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ===== Workspace ===== */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--topbar-h));
+}
+
+/* ===== Toolbar ===== */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  height: var(--toolbar-h);
+  background: var(--frame);
+  border-bottom: 1px solid var(--frame-border);
+  flex-shrink: 0;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.toolbar.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
+
+.toolbar-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Rake size group */
+.rake-group {
+  display: flex;
+  gap: 4px;
+}
+
+.rake-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.rake-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+.rake-btn.active {
+  background: rgba(184,149,106,0.22);
+  border-color: rgba(184,149,106,0.55);
+  color: #c8a87a;
+}
+
+.toolbar-spacer { flex: 1; }
+
+/* Buttons */
+.btn {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn--ghost {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+}
+.btn--ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+/* ===== Garden frame (wooden box aesthetic) ===== */
+.garden-frame {
+  flex: 1;
+  padding: 18px;
+  background: var(--frame);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+#zenCanvas {
+  display: block;
+  flex: 1;
+  border-radius: 4px;
+  cursor: none;
+  touch-action: none;
+}
+
+/* ===== Silence mode ===== */
+body.silence-mode {
+  background: #0a0a06;
+}
+body.silence-mode .garden-frame {
+  padding: 0;
+}
+body.silence-mode #zenCanvas {
+  border-radius: 0;
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painting → Sound — InteractivaLab</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <nav class="top-bar">
+    <a href="/" class="back-btn">← InteractivaLab</a>
+    <span class="experiment-title">🎨 Painting → Sound</span>
+  </nav>
+
+  <div class="workspace">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <!-- Suggested palette -->
+      <div class="palette" id="palette"></div>
+
+      <!-- Custom color picker -->
+      <label class="color-pick-wrap" title="Cor personalizada">
+        <input type="color" id="colorPicker" value="#ff6b6b" />
+        <span class="color-pick-icon">🎨</span>
+      </label>
+
+      <!-- Brush size -->
+      <div class="brush-size-wrap">
+        <label for="brushSize">Pincel</label>
+        <input type="range" id="brushSize" min="4" max="60" value="20" />
+      </div>
+
+      <div class="toolbar-spacer"></div>
+
+      <!-- Actions -->
+      <button class="btn btn--ghost" id="clearBtn">↺ Limpar</button>
+      <button class="btn btn--play" id="playBtn">▶ Tocar</button>
+    </div>
+
+    <!-- Canvas container -->
+    <div class="canvas-wrap">
+      <canvas id="paintCanvas"></canvas>
+      <div class="canvas-hint" id="canvasHint">Pinte aqui — depois clique em Tocar</div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar" id="statusBar">
+      <span id="statusText">Pronto para pintar</span>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
