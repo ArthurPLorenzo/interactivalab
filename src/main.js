@@ -141,6 +141,88 @@ document.querySelectorAll('.card-preview[data-preview="zen"]').forEach(canvas =>
   setTimeout(frame, Math.random() * 3000)
 })
 
+// ── Pendulum card preview ─────────────────────────────────────────────────────
+document.querySelectorAll('.card-preview[data-preview="pendulum"]').forEach(canvas => {
+  const ctx = canvas.getContext('2d')
+  const w = canvas.width, h = canvas.height
+
+  // Simple pendulum: pivot at top-center, ball swings
+  const pivotX = w * 0.5
+  const pivotY = h * 0.1
+  const ropeLen = h * 0.48
+  let angle = Math.PI / 3.8
+  let omega = 0
+  const G = 0.0028
+
+  // Second rope: left wall anchor
+  const anchor2 = { x: 8, y: h * 0.22 }
+
+  ctx.fillStyle = '#080808'
+  ctx.fillRect(0, 0, w, h)
+
+  function frame() {
+    ctx.fillStyle = 'rgba(8,8,8,0.2)'
+    ctx.fillRect(0, 0, w, h)
+
+    // Physics — simple pendulum
+    omega += -(G / ropeLen) * Math.sin(angle)
+    omega *= 0.9992
+    angle += omega
+
+    const bx = pivotX + ropeLen * Math.sin(angle)
+    const by = pivotY + ropeLen * Math.cos(angle)
+
+    // Rope 1 (pivot)
+    ctx.strokeStyle = 'rgba(195,195,195,0.72)'
+    ctx.lineWidth = 1.4
+    ctx.beginPath()
+    ctx.moveTo(pivotX, pivotY)
+    ctx.lineTo(bx, by)
+    ctx.stroke()
+
+    // Rope 2 (left wall) — show as slack/taut based on ball pos
+    const dist2 = Math.hypot(bx - anchor2.x, by - anchor2.y)
+    const maxLen2 = 115
+    const taut2 = Math.min(1, dist2 / maxLen2)
+    const droop = Math.max(0, maxLen2 - dist2) * 0.18
+    const mx2 = (bx + anchor2.x) / 2, my2 = (by + anchor2.y) / 2 + droop
+    const v = Math.round(70 + taut2 * 110)
+    ctx.strokeStyle = `rgba(${v},${v},${v},0.65)`
+    ctx.lineWidth = 1.3
+    ctx.beginPath()
+    ctx.moveTo(bx, by)
+    if (droop > 2) ctx.quadraticCurveTo(mx2, my2, anchor2.x, anchor2.y)
+    else ctx.lineTo(anchor2.x, anchor2.y)
+    ctx.stroke()
+
+    // Anchor dots
+    ctx.fillStyle = 'rgba(160,160,160,0.6)'
+    ctx.beginPath(); ctx.arc(pivotX, pivotY, 3.5, 0, Math.PI*2); ctx.fill()
+    ctx.beginPath(); ctx.arc(anchor2.x, anchor2.y, 3.5, 0, Math.PI*2); ctx.fill()
+
+    // Ball
+    const r = 13
+    const grad = ctx.createRadialGradient(bx - r*0.3, by - r*0.3, r*0.07, bx, by, r)
+    grad.addColorStop(0,   '#d8d8d8')
+    grad.addColorStop(0.4, '#909090')
+    grad.addColorStop(1,   '#1e1e1e')
+    ctx.save()
+    ctx.shadowColor = 'rgba(0,0,0,0.7)'
+    ctx.shadowBlur  = 10
+    ctx.shadowOffsetY = 4
+    ctx.beginPath()
+    ctx.arc(bx, by, r, 0, Math.PI*2)
+    ctx.fillStyle = grad
+    ctx.fill()
+    ctx.restore()
+
+    requestAnimationFrame(frame)
+  }
+
+  // Stagger so cards don't sync
+  setTimeout(frame, Math.random() * 2000)
+})
+
 // ── Accent bar color — CSS attr() doesn't work for non-content props,
 // so apply via JS
 document.querySelectorAll('.card[data-color]').forEach(card => {

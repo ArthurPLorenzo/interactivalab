@@ -9,6 +9,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         paintingSound: resolve(__dirname, 'experiments/painting-sound/index.html'),
         zenGarden: resolve(__dirname, 'experiments/zen-garden/index.html'),
+        pendulumStrings: resolve(__dirname, 'experiments/pendulum-strings/index.html'),
       },
     },
   },

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pêndulo &amp; Cordas — InteractivaLab</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <nav class="top-bar">
+    <a href="/" class="back-btn">← InteractivaLab</a>
+    <span class="experiment-title">🎸 Pêndulo &amp; Cordas</span>
+  </nav>
+
+  <div class="workspace">
+    <div class="toolbar">
+      <span class="toolbar-label">Gravidade</span>
+      <input type="range" id="gravSlider" min="0" max="2" step="0.1" value="1" />
+      <span class="grav-val" id="gravVal">1.0×</span>
+      <div class="toolbar-spacer"></div>
+      <span class="rope-count" id="ropeCount"></span>
+      <button class="btn btn--play" id="btnPlay">▶ Play</button>
+    </div>
+
+    <div class="sim-wrap">
+      <canvas id="simCanvas"></canvas>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

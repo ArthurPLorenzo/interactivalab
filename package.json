@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "matter-js": "^0.20.0",
     "tone": "^14.7.77"
   },
   "devDependencies": {
