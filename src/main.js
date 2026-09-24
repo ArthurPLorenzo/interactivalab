@@ -140,78 +140,33 @@ if (plotter) {
   }
 }
 
-// ── Zen garden card preview (sand sweep) ──────────────────────────────────────
-document.querySelectorAll('.card-preview[data-preview="zen"]').forEach(canvas => {
+// ── Wave garden card preview (two drippers on raked sand) ─────────────────────
+document.querySelectorAll('.card-preview[data-preview="waves"]').forEach(canvas => {
   const ctx = canvas.getContext('2d')
-  const w = canvas.width, h = canvas.height
+  const w = canvas.width, h = canvas.height, cell = 3
+  const sources = [[w * 0.42, h * 0.3], [w * 0.58, h * 0.3]]
+  const k = 2 * Math.PI / 26, omega = 2 * Math.PI * 0.9
+  let t = 0
 
-  const SAND = '#e2cfa0'
-  const STONES = [
-    { x: w * 0.28, y: h * 0.52, rx: 13, ry: 9, rot: -0.3 },
-    { x: w * 0.68, y: h * 0.38, rx: 18, ry: 13, rot: 0.5 },
-    { x: w * 0.82, y: h * 0.68, rx: 10, ry: 7, rot: 0.1 },
-  ]
-
-  function drawBase() {
-    ctx.fillStyle = SAND
-    ctx.fillRect(0, 0, w, h)
-    // grain
-    for (let i = 0; i < 1800; i++) {
-      ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`
-      ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1)
-    }
-    STONES.forEach(s => {
-      ctx.save()
-      ctx.translate(s.x, s.y)
-      ctx.rotate(s.rot)
-      ctx.shadowColor = 'rgba(0,0,0,0.32)'
-      ctx.shadowBlur = 6
-      ctx.shadowOffsetY = 2
-      ctx.beginPath()
-      ctx.ellipse(0, 0, s.rx, s.ry, 0, 0, Math.PI * 2)
-      ctx.fillStyle = '#928880'
-      ctx.fill()
-      ctx.restore()
-    })
-  }
-
-  drawBase()
-
-  const TINES = 5
-  const TINE_GAP = 7
-  const TINE_HALF = ((TINES - 1) * TINE_GAP) / 2
-  const midY = h / 2
-
-  let rakeX = -10
-  let phase = 'sweep' // 'sweep' | 'pause'
-  let pauseTick = 0
+  // Height of the surface: two circular waves in step, weaker farther out
+  const height = (x, y) => sources.reduce((s, [sx, sy]) => {
+    const r = Math.hypot(x - sx, y - sy) + 4
+    return s + Math.sin(k * r - omega * t) * 3 / Math.sqrt(r)
+  }, 0)
 
   function frame() {
-    if (phase === 'pause') {
-      pauseTick++
-      if (pauseTick > 90) { phase = 'sweep'; rakeX = -10; drawBase() }
-      requestAnimationFrame(frame)
-      return
+    t += 1 / 60
+    for (let y = 0; y < h; y += cell) for (let x = 0; x < w; x += cell) {
+      const s = Math.max(0.6, Math.min(1.35, 1 - (height(x + 1, y) - height(x - 1, y) + height(x, y + 1) - height(x, y - 1)) * 1.2))
+      ctx.fillStyle = `rgb(${226 * s | 0},${207 * s | 0},${160 * s | 0})`
+      ctx.fillRect(x, y, cell, cell)
     }
-
-    // draw tine pixels at rakeX
-    ctx.strokeStyle = 'rgba(172, 143, 88, 0.52)'
-    ctx.lineWidth = 1
-    for (let t = 0; t < TINES; t++) {
-      const ty = midY - TINE_HALF + t * TINE_GAP
-      ctx.beginPath()
-      ctx.moveTo(rakeX - 1, ty)
-      ctx.lineTo(rakeX, ty)
-      ctx.stroke()
-    }
-
-    rakeX += 0.7
-    if (rakeX > w + 10) { phase = 'pause'; pauseTick = 0 }
-    requestAnimationFrame(frame)
+    ctx.fillStyle = '#3b3222'
+    for (const [sx, sy] of sources) { ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2); ctx.fill() }
+    if (!reducedMotion) requestAnimationFrame(frame)
   }
 
-  // Stagger start so cards don't sync
-  setTimeout(frame, Math.random() * 3000)
+  setTimeout(frame, reducedMotion ? 0 : Math.random() * 2000)
 })
 
 // ── Pendulum card preview (pendulum on graph paper + its angle trace) ─────────

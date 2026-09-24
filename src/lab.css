@@ -177,3 +177,46 @@ input[type="range"] { width: 100%; accent-color: var(--ink); }
   border-width: 0 2.5px 2.5px 0;
   transform: rotate(45deg);
 }
+
+/* ─── Página de experimento ─── */
+.exp-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px 20px 64px;
+}
+
+.exp-page h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -0.02em; }
+.lead { font-size: 1.15rem; color: var(--ink-soft); margin-top: 0.5rem; }
+
+.setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 22px 0 18px;
+}
+.gval { color: var(--ink-soft); }
+.setup .btn { margin-left: auto; padding: 6px 12px; }
+
+.pane { padding-top: 18px; }
+.question { font-size: 1.08rem; margin-bottom: 16px; }
+
+.lab { display: grid; gap: 20px; grid-template-columns: 1fr; }
+@media (min-width: 880px) { .lab { grid-template-columns: 1.25fr 1fr; align-items: start; } }
+
+.stage {
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.stage canvas { display: block; width: 100%; touch-action: none; }
+
+.panel {
+  background: var(--paper-2);
+  border: 1.5px solid var(--grid-strong);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.goals-title { font-size: 1.15rem; margin-top: 20px; }

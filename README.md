@@ -7,8 +7,8 @@ Experimentos de física que rodam no navegador, para curiosos e estudantes do en
 | Área | Experimento | O que se aprende |
 |---|---|---|
 | Oscilações e ondas | [Pêndulo & Cordas](experiments/pendulum-strings/) | Período do pêndulo (T = 2π√(L/g)) e frequência de uma corda (lei de Mersenne), com metrônomo, afinador e gravidade de outros planetas |
+| Oscilações e ondas | [Jardim de ondas](experiments/wave-garden/) | Velocidade de onda em água rasa (v = √(g·h)), comprimento de onda (λ = v ÷ f), reflexão, difração e interferência numa cuba de ondas em forma de jardim zen, com régua, boia e os lagos de metano de Titã |
 | Eletricidade | [Bancada de eletrônica](experiments/bancada-eletronica/) | Lei de Ohm, LED, capacitor e transistor, com simulador de circuitos e multímetro |
-| Fora do roteiro | [Jardim Zen](experiments/zen-garden/) | Nada: é só para mexer |
 
 Os próximos experimentos planejados aparecem como "Em breve" na página inicial.
 
@@ -49,8 +49,8 @@ interactivalab/
 │   └── main.js                # Registrador da mola e miniaturas animadas
 └── experiments/
     ├── pendulum-strings/      # physics.js (física pura, testada) + main.js (interface)
-    ├── bancada-eletronica/    # src/sim (simulador, testado) + src/sandbox + src/tabs
-    └── zen-garden/
+    ├── wave-garden/           # physics.js (equação de onda 2D, testada) + main.js (interface)
+    └── bancada-eletronica/    # src/sim (simulador, testado) + src/sandbox + src/tabs
 ```
 
 ## Adicionar um experimento

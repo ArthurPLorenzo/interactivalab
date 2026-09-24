@@ -1,0 +1,26 @@
+@import '../../src/lab.css';
+
+.tools { margin-bottom: 10px; }
+
+.stage { background: #e2cfa0; }
+#tank { cursor: crosshair; }
+
+.tip { color: var(--ink-soft); font-size: 0.95rem; margin: 8px 0 10px; }
+
+.stage-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.stage-row label { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); }
+.stage-row .btn { padding: 6px 12px; }
+
+select {
+  font: inherit;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1.5px solid var(--grid-strong);
+  background: var(--paper-2);
+  color: var(--ink);
+}

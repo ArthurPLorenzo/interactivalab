@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jardim de ondas — InteractivaLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="lab-bar">
+    <a href="/" class="lab-home">InteractivaLab</a>
+  </header>
+
+  <main class="exp-page">
+    <h1>Jardim de ondas</h1>
+    <p class="lead">Nos jardins zen, a areia faz o papel da água e os círculos em volta das pedras são ondulações. Aqui a areia se mexe como água de verdade.</p>
+
+    <div class="setup">
+      <span id="world-label">Onde está a cuba</span>
+      <div class="seg" id="world" role="group" aria-labelledby="world-label"></div>
+      <span class="gval" id="gval"></span>
+      <button class="btn ghost" id="sound" type="button" aria-pressed="true">Som ligado</button>
+    </div>
+
+    <p class="question">Na escola, isso se estuda numa cuba de ondas: um tanque raso de água. Do que depende a velocidade de uma onda? E o que acontece quando duas ondas se encontram, ou quando uma onda bate numa pedra?</p>
+
+    <div class="lab">
+      <div>
+        <div class="seg tools" id="tools" role="group" aria-label="O que o toque na areia faz"></div>
+        <div class="stage">
+          <canvas id="tank" aria-label="Cuba de ondas com areia, pedras, pingadores, régua e boia"></canvas>
+        </div>
+        <p class="tip" id="tip"></p>
+        <div class="stage-row">
+          <label>Exemplos
+            <select id="preset">
+              <option value="">Carregar…</option>
+              <option value="zen">Jardim zen</option>
+              <option value="duas">Duas fontes</option>
+              <option value="fresta">Fresta entre pedras</option>
+              <option value="pedra">Pedra no caminho</option>
+            </select>
+          </label>
+          <button class="btn ghost" id="pause" type="button" aria-pressed="false">Pausar a água</button>
+          <button class="btn ghost" id="calm" type="button">Acalmar a água</button>
+          <button class="btn ghost" id="clear" type="button">Esvaziar a cuba</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="field">
+          <label for="h">Profundidade da água <output id="h-out" for="h"></output></label>
+          <input type="range" id="h" />
+        </div>
+        <div class="field">
+          <label for="f">Batidas do pingador por segundo <output id="f-out" for="f"></output></label>
+          <input type="range" id="f" />
+        </div>
+
+        <div class="readings">
+          <div><small>Velocidade da onda</small><b id="r-v">—</b></div>
+          <div><small>Comprimento de onda</small><b id="r-l">—</b></div>
+          <div class="measured"><small>Na régua</small><b id="r-ruler">—</b></div>
+        </div>
+        <div class="status" id="status" aria-live="polite"></div>
+
+        <details class="math">
+          <summary>A conta</summary>
+          <div id="math"></div>
+        </details>
+
+        <h2 class="goals-title">Desafios</h2>
+        <ul class="goals" id="goals">
+          <li data-g="ruler">Meça com a régua a distância de uma crista até a próxima (as cristas são as linhas claras)</li>
+          <li data-g="slow">Deixe as ondas duas vezes mais lentas mudando só a profundidade</li>
+          <li data-g="still">Com dois pingadores, ache com a boia um ponto onde a areia fica parada</li>
+          <li data-g="tita">Leve a cuba para Titã e meça a onda de novo</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
