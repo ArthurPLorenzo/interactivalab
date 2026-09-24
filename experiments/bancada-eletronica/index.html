@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bancada de eletrônica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Bancada de eletrônica</h1>
+  <p class="lead">Monte, ligue e veja o que acontece. Aqui queimar peça é de graça.</p>
+
+  <nav>
+    <button class="tab on" data-p="p-pecas">As peças</button>
+    <button class="tab" data-p="p-led">LED + resistor</button>
+    <button class="tab" data-p="p-cap">Capacitor</button>
+    <button class="tab" data-p="p-tr">Transistor</button>
+    <button class="tab" data-p="p-sbx">Sandbox</button>
+  </nav>
+
+  <!-- PEÇAS -->
+  <section class="pane" id="p-pecas">
+    <div class="ohm">
+      <h2>A regra que evita queimar</h2>
+      <div class="eq">V = R × I</div>
+      <p>Pense em água num cano. A <b>tensão</b> (V, volts) é a pressão. A <b>corrente</b> (I, ampères) é quanta água passa. A <b>resistência</b> (R, ohms) é o quanto o cano é estreito.</p>
+      <p>Toda peça tem uma corrente máxima. Com uma fonte de tensão X, você coloca um resistor que estreita o cano até a corrente ficar abaixo desse máximo:</p>
+      <div class="eq">R = (V da fonte − V que a peça usa) ÷ corrente desejada</div>
+      <p>Exemplo: fonte de 9 V, LED vermelho (usa ~2 V, quer ~15 mA): (9 − 2) ÷ 0,015 = 467 Ω → use 470 Ω.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H30M40 22H85M30 8V36M40 15V29"/></svg>
+        <h3>Fonte (bateria)</h3>
+        <p>Empurra a corrente pelo circuito. O número em volts é a força desse empurrão. Sem um caminho fechado de ida e volta, nada passa.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H20L25 12L33 32L41 12L49 32L57 12L65 32L70 22H85"/></svg>
+        <h3>Resistor</h3>
+        <p>Estreita o cano: limita a corrente. As faixas coloridas dizem o valor em ohms (Ω). É a peça que protege as outras.</p>
+        <p class="care"><strong>Cuidado:</strong> aguenta uma potência máxima (os comuns, 1/4 W). Passou disso, esquenta e queima.</p>
+        <button class="link" data-go="p-led">Testar na bancada</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H32M58 22H85M32 8L58 22L32 36Z M58 8V36M62 6L72 -2M68 12L78 4"/></svg>
+        <h3>LED</h3>
+        <p>Um diodo que acende. Só conduz num sentido: a perna mais longa vai no positivo. Precisa de uma tensão mínima (~2 V o vermelho, ~3 V o azul) e aguenta uns 20 mA.</p>
+        <p class="care"><strong>Cuidado:</strong> nunca ligue direto na fonte. Sempre com resistor.</p>
+        <button class="link" data-go="p-led">Testar na bancada</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H32M58 22H85M32 8L58 22L32 36Z M58 8V36"/></svg>
+        <h3>Diodo</h3>
+        <p>Uma válvula de mão única: deixa a corrente passar num sentido e bloqueia no outro. "Come" uns 0,7 V. Muito usado pra proteger o circuito se alguém ligar a bateria ao contrário.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H38M52 22H85M38 8V36M52 8V36"/></svg>
+        <h3>Capacitor</h3>
+        <p>Um pequeno reservatório: enche de carga e devolve rápido. O valor em microfarads (µF) é o tamanho do reservatório.</p>
+        <p class="care"><strong>Cuidado:</strong> a tensão máxima vem escrita no corpo (ex.: 16 V). Os eletrolíticos têm lado certo. Acima da tensão ou invertido, estufa ou estoura.</p>
+        <button class="link" data-go="p-cap">Testar na bancada</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><circle class="sym" cx="50" cy="22" r="18"/><path class="sym" d="M5 22H42M42 10V34M42 16L62 4M42 28L62 40M56 33L62 40L53 40"/></svg>
+        <h3>Transistor</h3>
+        <p>Uma torneira controlada por eletricidade. Uma correntinha na <b>base</b> libera uma corrente bem maior entre <b>coletor</b> e <b>emissor</b>. É assim que um Arduino liga um motor.</p>
+        <p class="care"><strong>Cuidado:</strong> a base sempre leva resistor.</p>
+        <button class="link" data-go="p-tr">Testar na bancada</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LED -->
+  <section class="pane" id="p-led" hidden>
+    <h2>LED + resistor</h2>
+    <p>Escolha a tensão da fonte e o resistor. O objetivo: acender o LED sem queimar nada.</p>
+    <div class="lab">
+      <svg class="board" viewBox="0 0 360 230" role="img" aria-label="Circuito com bateria, resistor e LED">
+        <defs><filter id="blur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <path class="wire" d="M60 80 V30 H300 V200 H60 V140"/>
+        <path id="l-flow" class="flow" d="M60 80 V30 H300 V200 H60 V140"/>
+        <rect class="bat" x="32" y="80" width="56" height="60" rx="6"/>
+        <text class="silk" x="60" y="96" text-anchor="middle">+</text>
+        <text class="silk big" id="l-vtext" x="60" y="116" text-anchor="middle">9 V</text>
+        <text class="silk" x="60" y="134" text-anchor="middle">−</text>
+        <g id="l-res">
+          <rect x="140" y="21" width="80" height="18" rx="8" fill="#e2c592"/>
+          <rect id="l-b1" x="152" y="21" width="6" height="18"/>
+          <rect id="l-b2" x="164" y="21" width="6" height="18"/>
+          <rect id="l-b3" x="176" y="21" width="6" height="18"/>
+          <rect x="204" y="21" width="6" height="18" fill="#c9a227"/>
+        </g>
+        <text class="silk" id="l-rlabel" x="180" y="60" text-anchor="middle">470 Ω</text>
+        <circle id="l-glow" cx="300" cy="116" r="28" fill="#ff3b2f" opacity="0" filter="url(#blur)"/>
+        <polygon id="l-ledbody" points="284,102 316,102 300,128" fill="#ff3b2f" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="284" y1="129" x2="316" y2="129" stroke="var(--silk)" stroke-width="3"/>
+        <text class="silk" x="276" y="120" text-anchor="end">LED</text>
+        <text id="l-smoke" x="318" y="100" font-size="24" opacity="0">💨</text>
+      </svg>
+
+      <div class="ctrl">
+        <h3>Tensão da fonte</h3>
+        <div class="seg" id="l-volt"></div>
+        <h3>Cor do LED</h3>
+        <div class="seg" id="l-led"></div>
+        <h3>Resistor: <span class="rval" id="l-rtxt">470 Ω</span></h3>
+        <input type="range" id="l-r" min="0" max="9" step="1" value="5" aria-label="Valor do resistor">
+        <div class="meters">
+          <div class="m"><small>Corrente</small><b id="l-i">—</b></div>
+          <div class="m"><small>Calor no resistor</small><b id="l-p">—</b></div>
+          <div class="m"><small>Limite do LED</small><b>20 mA</b></div>
+        </div>
+        <div class="status" id="l-status"></div>
+        <button class="btn" id="l-reset" hidden>Trocar a peça queimada</button>
+        <details class="recipe">
+          <summary>Qual resistor usar?</summary>
+          <p id="l-recipe"></p>
+        </details>
+        <h3>Desafios</h3>
+        <ul class="goals" id="l-goals">
+          <li data-g="1">Acenda o LED vermelho em 5 V sem queimar</li>
+          <li data-g="2">Acenda qualquer LED em 12 V sem queimar</li>
+          <li data-g="3">Queime um LED de propósito</li>
+          <li data-g="4">Tente acender o azul em 3 V. O que acontece?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPACITOR -->
+  <section class="pane" id="p-cap" hidden>
+    <h2>Capacitor</h2>
+    <p>Encha o capacitor na bateria de 9 V e depois vire a chave para o LED. Ele acende com a energia guardada, sem bateria.</p>
+    <div class="lab">
+      <svg class="board" viewBox="0 0 360 220" role="img" aria-label="Circuito com bateria, chave, capacitor e LED">
+        <defs><filter id="blur2" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <path class="wire" d="M50 90 V40 H140"/>
+        <path class="wire" d="M220 40 H310 V185 H50 V130"/>
+        <path class="wire" d="M180 72 V110 M180 122 V185"/>
+        <path id="c-flow1" class="flow" d="M50 90 V40 H140"/>
+        <path id="c-flow2" class="flow" d="M220 40 H310 V185 H180"/>
+        <rect class="bat" x="22" y="90" width="56" height="40" rx="6"/>
+        <text class="silk big" x="50" y="116" text-anchor="middle">9 V</text>
+        <rect x="80" y="32" width="44" height="16" rx="7" fill="#e2c592"/>
+        <text class="silk" x="102" y="66" text-anchor="middle">1 kΩ</text>
+        <circle class="pad" cx="140" cy="40" r="5"/><circle class="pad" cx="220" cy="40" r="5"/><circle class="pad" cx="180" cy="72" r="5"/>
+        <line id="c-lever" x1="180" y1="72" x2="140" y2="42" stroke="var(--silk)" stroke-width="4" stroke-linecap="round"/>
+        <text class="silk" x="180" y="22" text-anchor="middle">chave</text>
+        <line x1="158" y1="110" x2="202" y2="110" stroke="var(--silk)" stroke-width="4"/>
+        <line id="c-plate2" x1="158" y1="122" x2="202" y2="122" stroke="var(--silk)" stroke-width="4"/>
+        <text class="silk" id="c-label" x="150" y="160" text-anchor="end">1000 µF</text>
+        <rect x="222" y="100" width="16" height="64" rx="3" fill="none" stroke="var(--silk)" stroke-width="1.5"/>
+        <rect id="c-fill" x="224" y="162" width="12" height="0" fill="var(--flow)"/>
+        <text class="silk" id="c-vtext" x="230" y="92" text-anchor="middle">0 V</text>
+        <circle id="c-glow" cx="310" cy="110" r="26" fill="#ff3b2f" opacity="0" filter="url(#blur2)"/>
+        <polygon points="296,98 324,98 310,120" fill="#ff3b2f" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="296" y1="121" x2="324" y2="121" stroke="var(--silk)" stroke-width="3"/>
+        <text class="silk" x="310" y="144" text-anchor="middle">LED</text>
+        <text id="c-boom" x="166" y="104" font-size="28" opacity="0">💥</text>
+      </svg>
+
+      <div class="ctrl">
+        <h3>Chave</h3>
+        <div class="seg" id="c-mode"></div>
+        <h3>Tamanho do capacitor</h3>
+        <div class="seg" id="c-size"></div>
+        <h3>Tensão máxima do capacitor</h3>
+        <div class="seg" id="c-rate"></div>
+        <div class="meters">
+          <div class="m"><small>Carga guardada</small><b id="c-v">0 V</b></div>
+          <div class="m"><small>Corrente</small><b id="c-i">0 mA</b></div>
+          <div class="m"><small>Fonte</small><b>9 V</b></div>
+        </div>
+        <div class="status" id="c-status"></div>
+        <button class="btn ghost" id="c-reset">Trocar e esvaziar o capacitor</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSISTOR -->
+  <section class="pane" id="p-tr" hidden>
+    <h2>Transistor</h2>
+    <p>O botão manda uma correntinha para a base. O transistor usa essa correntinha para liberar uma corrente maior pelo LED.</p>
+    <div class="lab">
+      <svg class="board" viewBox="0 0 360 250" role="img" aria-label="Transistor controlando um LED">
+        <defs><filter id="blur3" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <path class="wire" d="M50 110 V30 H270 V158 L245 174"/>
+        <path class="wire" d="M245 186 L270 202 V228 H50 V150"/>
+        <path class="wire" d="M140 30 V60 M140 90 V180 H245"/>
+        <path id="t-flowc" class="flow" d="M50 110 V30 H270 V158 L245 174 M245 186 L270 202 V228 H50 V150"/>
+        <path id="t-flowb" class="flow" d="M140 30 V180 H245"/>
+        <rect class="bat" x="22" y="110" width="56" height="40" rx="6"/>
+        <text class="silk big" x="50" y="136" text-anchor="middle">9 V</text>
+        <rect x="262" y="52" width="16" height="36" rx="6" fill="#e2c592"/>
+        <text class="silk" x="288" y="74">470 Ω</text>
+        <circle id="t-glow" cx="270" cy="112" r="26" fill="#ff3b2f" opacity="0" filter="url(#blur3)"/>
+        <polygon points="256,100 284,100 270,122" fill="#ff3b2f" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="256" y1="123" x2="284" y2="123" stroke="var(--silk)" stroke-width="3"/>
+        <text class="silk" x="288" y="116">LED</text>
+        <circle class="pad" cx="140" cy="60" r="5"/><circle class="pad" cx="140" cy="90" r="5"/>
+        <line id="t-btn" x1="140" y1="60" x2="160" y2="84" stroke="var(--silk)" stroke-width="4" stroke-linecap="round"/>
+        <text class="silk" x="130" y="80" text-anchor="end">botão</text>
+        <g id="t-rb"><rect x="168" y="172" width="48" height="16" rx="7" fill="#e2c592"/></g>
+        <text class="silk" id="t-rblabel" x="192" y="206" text-anchor="middle">10 kΩ</text>
+        <circle id="t-body" cx="255" cy="180" r="24" fill="#2b2f2c" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="245" y1="166" x2="245" y2="194" stroke="var(--silk)" stroke-width="3"/>
+        <line x1="245" y1="174" x2="266" y2="161" stroke="var(--silk)" stroke-width="2"/>
+        <line x1="245" y1="186" x2="266" y2="199" stroke="var(--silk)" stroke-width="2"/>
+        <polygon points="266,199 257,197 262,190" fill="var(--silk)"/>
+        <text class="silk" x="296" y="170">coletor</text>
+        <text class="silk" x="296" y="206">emissor</text>
+        <text class="silk" x="222" y="160" text-anchor="end">base</text>
+        <text id="t-smoke" x="262" y="160" font-size="24" opacity="0">💨</text>
+      </svg>
+
+      <div class="ctrl">
+        <h3>Botão</h3>
+        <button class="btn" id="t-press" style="margin-top:0">Apertar o botão</button>
+        <h3>Resistor da base: <span class="rval" id="t-rtxt">10 kΩ</span></h3>
+        <div class="seg" id="t-rsel"></div>
+        <div class="meters">
+          <div class="m"><small>Na base</small><b id="t-ib">0</b></div>
+          <div class="m"><small>No LED</small><b id="t-ic">0</b></div>
+          <div class="m"><small>Multiplicou</small><b id="t-g">—</b></div>
+        </div>
+        <div class="status" id="t-status"></div>
+        <button class="btn" id="t-reset" hidden>Trocar o transistor queimado</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SANDBOX -->
+  <section class="pane" id="p-sbx" hidden>
+    <h2>Sandbox</h2>
+    <p>Monte o que quiser. Escolha uma peça, toque nos pontos da placa para encaixá-la e veja a corrente correr. Se algo queimar, dá para trocar.</p>
+    <div class="ctrl">
+      <div class="tools" id="s-tools"></div>
+      <div id="s-params"></div>
+      <p class="tip" id="s-tip"></p>
+      <p class="hint" id="s-hint"></p>
+    </div>
+    <div class="lab" style="margin-top:14px">
+      <div>
+        <svg class="board" id="s-board" viewBox="0 0 452 340" role="img" aria-label="Placa para montar circuitos">
+          <defs><filter id="sblur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+        </svg>
+        <div class="srow" style="margin-top:10px">
+          <label>Exemplos
+            <select id="s-preset">
+              <option value="">Carregar…</option>
+              <option value="led">LED com resistor</option>
+              <option value="npn">Transistor com botão</option>
+              <option value="cap">Capacitor carrega e descarrega</option>
+              <option value="curto">Curto-circuito</option>
+            </select>
+          </label>
+          <button class="btn ghost" id="s-clear">Limpar a placa</button>
+        </div>
+      </div>
+      <div>
+        <div class="ctrl meter" id="s-mm" hidden style="margin-bottom:14px">
+          <div class="mm-top"><h3>Multímetro</h3><button class="link" id="s-mm-off" type="button">Guardar o multímetro</button></div>
+          <div class="lcd" aria-live="polite"><span id="s-mm-val">- - -</span><small id="s-mm-unit"></small></div>
+          <div class="seg" id="s-mm-mode"></div>
+          <p class="tip" id="s-mm-tip"></p>
+          <div class="status" id="s-mm-status"></div>
+          <button class="btn" id="s-mm-fuse" hidden>Trocar o fusível</button>
+        </div>
+        <div class="ctrl" id="s-insp"></div>
+        <div class="ctrl" style="margin-top:14px">
+          <h3>O que aconteceu</h3>
+          <ul class="log" id="s-log"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

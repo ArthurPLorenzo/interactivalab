@@ -5,13 +5,17 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "build:bancada": "vite build --config vite.bancada.config.js",
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "matter-js": "^0.20.0",
     "tone": "^14.7.77"
   },
   "devDependencies": {
-    "vite": "^5.4.0"
+    "vite": "^5.4.0",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^2.1.9"
   }
 }

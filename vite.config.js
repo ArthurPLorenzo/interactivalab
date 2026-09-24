@@ -10,6 +10,7 @@ export default defineConfig({
         paintingSound: resolve(__dirname, 'experiments/painting-sound/index.html'),
         zenGarden: resolve(__dirname, 'experiments/zen-garden/index.html'),
         pendulumStrings: resolve(__dirname, 'experiments/pendulum-strings/index.html'),
+        bancadaEletronica: resolve(__dirname, 'experiments/bancada-eletronica/index.html'),
       },
     },
   },
