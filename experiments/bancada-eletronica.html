@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bancada de eletrônica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef0ea; --panel:#f8f9f5; --ink:#17211c; --muted:#5d6a62; --line:#cfd5cc;
+  --board:#1f4d3a; --board2:#276047; --trace:#d49a4a; --silk:#e9efe9; --flow:#ffd36b;
+  --ok:#23845a; --warn:#b77a0c; --bad:#c0392b; --accent:#b8742a;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111713; --panel:#18201b; --ink:#e7ede8; --muted:#9aa8a0; --line:#2c3831;
+    --board:#153828; --board2:#1c4533; --ok:#4cc184; --warn:#e6a72a; --bad:#ef5b4a; --accent:#e0a059;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111713; --panel:#18201b; --ink:#e7ede8; --muted:#9aa8a0; --line:#2c3831;
+  --board:#153828; --board2:#1c4533; --ok:#4cc184; --warn:#e6a72a; --bad:#ef5b4a; --accent:#e0a059;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,h3{font-family:"Chakra Petch","IBM Plex Sans",system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);letter-spacing:-.01em}
+h2{font-size:1.4rem;margin-bottom:.4rem}
+h3{font-size:1.1rem}
+p{margin:.4rem 0;max-width:68ch}
+.lead{color:var(--muted);margin-top:.5rem}
+nav{display:flex;gap:6px;overflow-x:auto;margin:20px 0 18px;padding-bottom:4px}
+nav button{flex:none;font:600 .95rem "IBM Plex Sans",sans-serif;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+nav button.on{background:var(--board);border-color:var(--board);color:var(--silk)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pane[hidden]{display:none}
+.lab{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:820px){.lab{grid-template-columns:1.15fr 1fr;align-items:start}}
+.board{width:100%;height:auto;display:block;background:var(--board);border-radius:14px;
+  background-image:radial-gradient(circle,var(--board2) 1.3px,transparent 1.6px);background-size:18px 18px}
+.wire{fill:none;stroke:var(--trace);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke:var(--flow);stroke-width:3;stroke-linecap:round;stroke-dasharray:3 11;animation:flow 1s linear infinite;opacity:0;transition:opacity .25s}
+@keyframes flow{to{stroke-dashoffset:-28}}
+@media (prefers-reduced-motion:reduce){.flow{animation:none;stroke-dasharray:none;stroke-width:2}}
+.silk{fill:var(--silk);font:500 12px "IBM Plex Sans",sans-serif}
+.silk.big{font:700 15px "Chakra Petch",sans-serif}
+.bat{fill:#2b2f2c;stroke:var(--silk);stroke-width:1.5}
+.pad{fill:var(--silk)}
+.ctrl{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.ctrl h3{margin:14px 0 8px;font-size:1rem}
+.ctrl h3:first-child{margin-top:0}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:500 .95rem "IBM Plex Sans",sans-serif;padding:7px 12px;border-radius:8px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;text-transform:capitalize}
+.seg button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rval{font:700 1.25rem "Chakra Petch",sans-serif}
+.meters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.m{border-top:2px solid var(--line);padding-top:6px}
+.m small{display:block;color:var(--muted);font-size:.78rem}
+.m b{font:700 1.15rem "Chakra Petch",sans-serif}
+.status{margin-top:14px;padding:10px 12px;border-left:5px solid var(--muted);background:color-mix(in srgb,var(--muted) 10%,transparent);border-radius:0 8px 8px 0}
+.status.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.status.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.status.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.btn{font:600 .95rem "IBM Plex Sans",sans-serif;padding:9px 14px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;margin-top:10px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn[hidden]{display:none}
+.recipe{margin-top:14px;border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px}
+.recipe summary{cursor:pointer;font-weight:600}
+.eq{font:700 1.05rem "Chakra Petch",sans-serif;margin:.5rem 0}
+.goals{list-style:none;padding:0;margin:8px 0 0}
+.goals li{padding:4px 0 4px 28px;position:relative;color:var(--muted)}
+.goals li::before{content:"";position:absolute;left:4px;top:8px;width:14px;height:14px;border-radius:4px;border:2px solid var(--line)}
+.goals li.done{color:var(--ink)}
+.goals li.done::before{background:var(--ok);border-color:var(--ok)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px}
+.card svg{height:44px;width:auto;display:block;margin-bottom:8px}
+.card .sym{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.card .care{font-size:.92rem;color:var(--muted)}
+.card .care strong{color:var(--bad)}
+.link{background:none;border:none;color:var(--accent);font:600 .95rem "IBM Plex Sans",sans-serif;padding:4px 0;cursor:pointer;text-decoration:underline}
+.ohm{background:var(--board);color:var(--silk);border-radius:14px;padding:18px;margin-bottom:16px}
+.ohm .eq{font-size:1.4rem;color:var(--flow)}
+.ohm p{color:var(--silk);opacity:.92}
+.board text{pointer-events:none}
+#s-board{touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.tools button{font:500 .95rem "IBM Plex Sans",sans-serif;padding:8px 12px;border-radius:8px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.tools button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.srow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.srow .btn{margin-top:0}
+#s-params{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+#s-params:empty{display:none}
+.srow label,#s-params label{display:flex;gap:6px;align-items:center;font-size:.92rem;color:var(--muted)}
+select{font:inherit;font-size:.95rem;padding:6px 8px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink)}
+.tip{color:var(--muted);font-size:.93rem;margin:.7rem 0 .2rem}
+.hint{font-weight:600;margin:.2rem 0 0}
+.hint.err{color:var(--bad)}
+.part{cursor:pointer}
+.part .lead{stroke:var(--trace);stroke-width:4;stroke-linecap:round;fill:none}
+.part .hit{stroke:transparent;stroke-width:24;pointer-events:stroke}
+.part.selected .lead{stroke:var(--flow)}
+.part.burned{opacity:.55}
+.part.hot .lead{stroke:var(--bad)}
+.nodehit{fill:transparent;cursor:pointer}
+.sflow{fill:none;stroke:var(--flow);stroke-width:3;stroke-linecap:round;stroke-dasharray:3 11;animation:flow 1s linear infinite;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.sflow{animation:none;stroke-dasharray:none;stroke-width:2}}
+.log{list-style:none;padding:0;margin:0;font-size:.92rem}
+.log li{padding:6px 0;border-top:1px solid var(--line)}
+.log li:first-child{border-top:none}
+.log li.bad{color:var(--bad)}
+.meter{border:3px solid #e0b43a}
+.mm-top{display:flex;justify-content:space-between;align-items:center}
+.lcd{margin:10px 0;padding:10px 14px;border-radius:8px;background:#b9c7a0;color:#1b2216;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);display:flex;justify-content:flex-end;align-items:baseline;gap:8px;min-height:64px}
+.lcd span{font:700 2.3rem "Chakra Petch",sans-serif;letter-spacing:.02em}
+.lcd small{font:700 1.1rem "Chakra Petch",sans-serif}
+.meter[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bancada de eletrônica</h1>
+  <p class="lead">Monte, ligue e veja o que acontece. Aqui queimar peça é de graça.</p>
+
+  <nav>
+    <button class="tab on" data-p="p-pecas">As peças</button>
+    <button class="tab" data-p="p-led">LED + resistor</button>
+    <button class="tab" data-p="p-cap">Capacitor</button>
+    <button class="tab" data-p="p-tr">Transistor</button>
+    <button class="tab" data-p="p-sbx">Sandbox</button>
+  </nav>
+
+  <!-- PEÇAS -->
+  <section class="pane" id="p-pecas">
+    <div class="ohm">
+      <h2>A regra que evita queimar</h2>
+      <div class="eq">V = R × I</div>
+      <p>Pense em água num cano. A <b>tensão</b> (V, volts) é a pressão. A <b>corrente</b> (I, ampères) é quanta água passa. A <b>resistência</b> (R, ohms) é o quanto o cano é estreito.</p>
+      <p>Toda peça tem uma corrente máxima. Com uma fonte de tensão X, você coloca um resistor que estreita o cano até a corrente ficar abaixo desse máximo:</p>
+      <div class="eq">R = (V da fonte − V que a peça usa) ÷ corrente desejada</div>
+      <p>Exemplo: fonte de 9 V, LED vermelho (usa ~2 V, quer ~15 mA): (9 − 2) ÷ 0,015 = 467 Ω → use 470 Ω.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H30M40 22H85M30 8V36M40 15V29"/></svg>
+        <h3>Fonte (bateria)</h3>
+        <p>Empurra a corrente pelo circuito. O número em volts é a força desse empurrão. Sem um caminho fechado de ida e volta, nada passa.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H20L25 12L33 32L41 12L49 32L57 12L65 32L70 22H85"/></svg>
+        <h3>Resistor</h3>
+        <p>Estreita o cano: limita a corrente. As faixas coloridas dizem o valor em ohms (Ω). É a peça que protege as outras.</p>
+        <p class="care"><strong>Cuidado:</strong> aguenta uma potência máxima (os comuns, 1/4 W). Passou disso, esquenta e queima.</p>
+        <button class="link" data-go="p-led">Testar na bancada</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H32M58 22H85M32 8L58 22L32 36Z M58 8V36M62 6L72 -2M68 12L78 4"/></svg>
+        <h3>LED</h3>
+        <p>Um diodo que acende. Só conduz num sentido: a perna mais longa vai no positivo. Precisa de uma tensão mínima (~2 V o vermelho, ~3 V o azul) e aguenta uns 20 mA.</p>
+        <p class="care"><strong>Cuidado:</strong> nunca ligue direto na fonte. Sempre com resistor.</p>
+        <button class="link" data-go="p-led">Testar na bancada</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H32M58 22H85M32 8L58 22L32 36Z M58 8V36"/></svg>
+        <h3>Diodo</h3>
+        <p>Uma válvula de mão única: deixa a corrente passar num sentido e bloqueia no outro. "Come" uns 0,7 V. Muito usado pra proteger o circuito se alguém ligar a bateria ao contrário.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H38M52 22H85M38 8V36M52 8V36"/></svg>
+        <h3>Capacitor</h3>
+        <p>Um pequeno reservatório: enche de carga e devolve rápido. O valor em microfarads (µF) é o tamanho do reservatório.</p>
+        <p class="care"><strong>Cuidado:</strong> a tensão máxima vem escrita no corpo (ex.: 16 V). Os eletrolíticos têm lado certo. Acima da tensão ou invertido, estufa ou estoura.</p>
+        <button class="link" data-go="p-cap">Testar na bancada</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><circle class="sym" cx="50" cy="22" r="18"/><path class="sym" d="M5 22H42M42 10V34M42 16L62 4M42 28L62 40M56 33L62 40L53 40"/></svg>
+        <h3>Transistor</h3>
+        <p>Uma torneira controlada por eletricidade. Uma correntinha na <b>base</b> libera uma corrente bem maior entre <b>coletor</b> e <b>emissor</b>. É assim que um Arduino liga um motor.</p>
+        <p class="care"><strong>Cuidado:</strong> a base sempre leva resistor.</p>
+        <button class="link" data-go="p-tr">Testar na bancada</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LED -->
+  <section class="pane" id="p-led" hidden>
+    <h2>LED + resistor</h2>
+    <p>Escolha a tensão da fonte e o resistor. O objetivo: acender o LED sem queimar nada.</p>
+    <div class="lab">
+      <svg class="board" viewBox="0 0 360 230" role="img" aria-label="Circuito com bateria, resistor e LED">
+        <defs><filter id="blur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <path class="wire" d="M60 80 V30 H300 V200 H60 V140"/>
+        <path id="l-flow" class="flow" d="M60 80 V30 H300 V200 H60 V140"/>
+        <rect class="bat" x="32" y="80" width="56" height="60" rx="6"/>
+        <text class="silk" x="60" y="96" text-anchor="middle">+</text>
+        <text class="silk big" id="l-vtext" x="60" y="116" text-anchor="middle">9 V</text>
+        <text class="silk" x="60" y="134" text-anchor="middle">−</text>
+        <g id="l-res">
+          <rect x="140" y="21" width="80" height="18" rx="8" fill="#e2c592"/>
+          <rect id="l-b1" x="152" y="21" width="6" height="18"/>
+          <rect id="l-b2" x="164" y="21" width="6" height="18"/>
+          <rect id="l-b3" x="176" y="21" width="6" height="18"/>
+          <rect x="204" y="21" width="6" height="18" fill="#c9a227"/>
+        </g>
+        <text class="silk" id="l-rlabel" x="180" y="60" text-anchor="middle">470 Ω</text>
+        <circle id="l-glow" cx="300" cy="116" r="28" fill="#ff3b2f" opacity="0" filter="url(#blur)"/>
+        <polygon id="l-ledbody" points="284,102 316,102 300,128" fill="#ff3b2f" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="284" y1="129" x2="316" y2="129" stroke="var(--silk)" stroke-width="3"/>
+        <text class="silk" x="276" y="120" text-anchor="end">LED</text>
+        <text id="l-smoke" x="318" y="100" font-size="24" opacity="0">💨</text>
+      </svg>
+
+      <div class="ctrl">
+        <h3>Tensão da fonte</h3>
+        <div class="seg" id="l-volt"></div>
+        <h3>Cor do LED</h3>
+        <div class="seg" id="l-led"></div>
+        <h3>Resistor: <span class="rval" id="l-rtxt">470 Ω</span></h3>
+        <input type="range" id="l-r" min="0" max="9" step="1" value="5" aria-label="Valor do resistor">
+        <div class="meters">
+          <div class="m"><small>Corrente</small><b id="l-i">—</b></div>
+          <div class="m"><small>Calor no resistor</small><b id="l-p">—</b></div>
+          <div class="m"><small>Limite do LED</small><b>20 mA</b></div>
+        </div>
+        <div class="status" id="l-status"></div>
+        <button class="btn" id="l-reset" hidden>Trocar a peça queimada</button>
+        <details class="recipe">
+          <summary>Qual resistor usar?</summary>
+          <p id="l-recipe"></p>
+        </details>
+        <h3>Desafios</h3>
+        <ul class="goals" id="l-goals">
+          <li data-g="1">Acenda o LED vermelho em 5 V sem queimar</li>
+          <li data-g="2">Acenda qualquer LED em 12 V sem queimar</li>
+          <li data-g="3">Queime um LED de propósito</li>
+          <li data-g="4">Tente acender o azul em 3 V. O que acontece?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPACITOR -->
+  <section class="pane" id="p-cap" hidden>
+    <h2>Capacitor</h2>
+    <p>Encha o capacitor na bateria de 9 V e depois vire a chave para o LED. Ele acende com a energia guardada, sem bateria.</p>
+    <div class="lab">
+      <svg class="board" viewBox="0 0 360 220" role="img" aria-label="Circuito com bateria, chave, capacitor e LED">
+        <defs><filter id="blur2" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <path class="wire" d="M50 90 V40 H140"/>
+        <path class="wire" d="M220 40 H310 V185 H50 V130"/>
+        <path class="wire" d="M180 72 V110 M180 122 V185"/>
+        <path id="c-flow1" class="flow" d="M50 90 V40 H140"/>
+        <path id="c-flow2" class="flow" d="M220 40 H310 V185 H180"/>
+        <rect class="bat" x="22" y="90" width="56" height="40" rx="6"/>
+        <text class="silk big" x="50" y="116" text-anchor="middle">9 V</text>
+        <rect x="80" y="32" width="44" height="16" rx="7" fill="#e2c592"/>
+        <text class="silk" x="102" y="66" text-anchor="middle">1 kΩ</text>
+        <circle class="pad" cx="140" cy="40" r="5"/><circle class="pad" cx="220" cy="40" r="5"/><circle class="pad" cx="180" cy="72" r="5"/>
+        <line id="c-lever" x1="180" y1="72" x2="140" y2="42" stroke="var(--silk)" stroke-width="4" stroke-linecap="round"/>
+        <text class="silk" x="180" y="22" text-anchor="middle">chave</text>
+        <line x1="158" y1="110" x2="202" y2="110" stroke="var(--silk)" stroke-width="4"/>
+        <line id="c-plate2" x1="158" y1="122" x2="202" y2="122" stroke="var(--silk)" stroke-width="4"/>
+        <text class="silk" id="c-label" x="150" y="160" text-anchor="end">1000 µF</text>
+        <rect x="222" y="100" width="16" height="64" rx="3" fill="none" stroke="var(--silk)" stroke-width="1.5"/>
+        <rect id="c-fill" x="224" y="162" width="12" height="0" fill="var(--flow)"/>
+        <text class="silk" id="c-vtext" x="230" y="92" text-anchor="middle">0 V</text>
+        <circle id="c-glow" cx="310" cy="110" r="26" fill="#ff3b2f" opacity="0" filter="url(#blur2)"/>
+        <polygon points="296,98 324,98 310,120" fill="#ff3b2f" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="296" y1="121" x2="324" y2="121" stroke="var(--silk)" stroke-width="3"/>
+        <text class="silk" x="310" y="144" text-anchor="middle">LED</text>
+        <text id="c-boom" x="166" y="104" font-size="28" opacity="0">💥</text>
+      </svg>
+
+      <div class="ctrl">
+        <h3>Chave</h3>
+        <div class="seg" id="c-mode"></div>
+        <h3>Tamanho do capacitor</h3>
+        <div class="seg" id="c-size"></div>
+        <h3>Tensão máxima do capacitor</h3>
+        <div class="seg" id="c-rate"></div>
+        <div class="meters">
+          <div class="m"><small>Carga guardada</small><b id="c-v">0 V</b></div>
+          <div class="m"><small>Corrente</small><b id="c-i">0 mA</b></div>
+          <div class="m"><small>Fonte</small><b>9 V</b></div>
+        </div>
+        <div class="status" id="c-status"></div>
+        <button class="btn ghost" id="c-reset">Trocar e esvaziar o capacitor</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSISTOR -->
+  <section class="pane" id="p-tr" hidden>
+    <h2>Transistor</h2>
+    <p>O botão manda uma correntinha para a base. O transistor usa essa correntinha para liberar uma corrente maior pelo LED.</p>
+    <div class="lab">
+      <svg class="board" viewBox="0 0 360 250" role="img" aria-label="Transistor controlando um LED">
+        <defs><filter id="blur3" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <path class="wire" d="M50 110 V30 H270 V158 L245 174"/>
+        <path class="wire" d="M245 186 L270 202 V228 H50 V150"/>
+        <path class="wire" d="M140 30 V60 M140 90 V180 H245"/>
+        <path id="t-flowc" class="flow" d="M50 110 V30 H270 V158 L245 174 M245 186 L270 202 V228 H50 V150"/>
+        <path id="t-flowb" class="flow" d="M140 30 V180 H245"/>
+        <rect class="bat" x="22" y="110" width="56" height="40" rx="6"/>
+        <text class="silk big" x="50" y="136" text-anchor="middle">9 V</text>
+        <rect x="262" y="52" width="16" height="36" rx="6" fill="#e2c592"/>
+        <text class="silk" x="288" y="74">470 Ω</text>
+        <circle id="t-glow" cx="270" cy="112" r="26" fill="#ff3b2f" opacity="0" filter="url(#blur3)"/>
+        <polygon points="256,100 284,100 270,122" fill="#ff3b2f" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="256" y1="123" x2="284" y2="123" stroke="var(--silk)" stroke-width="3"/>
+        <text class="silk" x="288" y="116">LED</text>
+        <circle class="pad" cx="140" cy="60" r="5"/><circle class="pad" cx="140" cy="90" r="5"/>
+        <line id="t-btn" x1="140" y1="60" x2="160" y2="84" stroke="var(--silk)" stroke-width="4" stroke-linecap="round"/>
+        <text class="silk" x="130" y="80" text-anchor="end">botão</text>
+        <g id="t-rb"><rect x="168" y="172" width="48" height="16" rx="7" fill="#e2c592"/></g>
+        <text class="silk" id="t-rblabel" x="192" y="206" text-anchor="middle">10 kΩ</text>
+        <circle id="t-body" cx="255" cy="180" r="24" fill="#2b2f2c" stroke="var(--silk)" stroke-width="1.5"/>
+        <line x1="245" y1="166" x2="245" y2="194" stroke="var(--silk)" stroke-width="3"/>
+        <line x1="245" y1="174" x2="266" y2="161" stroke="var(--silk)" stroke-width="2"/>
+        <line x1="245" y1="186" x2="266" y2="199" stroke="var(--silk)" stroke-width="2"/>
+        <polygon points="266,199 257,197 262,190" fill="var(--silk)"/>
+        <text class="silk" x="296" y="170">coletor</text>
+        <text class="silk" x="296" y="206">emissor</text>
+        <text class="silk" x="222" y="160" text-anchor="end">base</text>
+        <text id="t-smoke" x="262" y="160" font-size="24" opacity="0">💨</text>
+      </svg>
+
+      <div class="ctrl">
+        <h3>Botão</h3>
+        <button class="btn" id="t-press" style="margin-top:0">Apertar o botão</button>
+        <h3>Resistor da base: <span class="rval" id="t-rtxt">10 kΩ</span></h3>
+        <div class="seg" id="t-rsel"></div>
+        <div class="meters">
+          <div class="m"><small>Na base</small><b id="t-ib">0</b></div>
+          <div class="m"><small>No LED</small><b id="t-ic">0</b></div>
+          <div class="m"><small>Multiplicou</small><b id="t-g">—</b></div>
+        </div>
+        <div class="status" id="t-status"></div>
+        <button class="btn" id="t-reset" hidden>Trocar o transistor queimado</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SANDBOX -->
+  <section class="pane" id="p-sbx" hidden>
+    <h2>Sandbox</h2>
+    <p>Monte o que quiser. Escolha uma peça, toque nos pontos da placa para encaixá-la e veja a corrente correr. Se algo queimar, dá para trocar.</p>
+    <div class="ctrl">
+      <div class="tools" id="s-tools"></div>
+      <div id="s-params"></div>
+      <p class="tip" id="s-tip"></p>
+      <p class="hint" id="s-hint"></p>
+    </div>
+    <div class="lab" style="margin-top:14px">
+      <div>
+        <svg class="board" id="s-board" viewBox="0 0 452 340" role="img" aria-label="Placa para montar circuitos">
+          <defs><filter id="sblur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+        </svg>
+        <div class="srow" style="margin-top:10px">
+          <label>Exemplos
+            <select id="s-preset">
+              <option value="">Carregar…</option>
+              <option value="led">LED com resistor</option>
+              <option value="npn">Transistor com botão</option>
+              <option value="cap">Capacitor carrega e descarrega</option>
+              <option value="curto">Curto-circuito</option>
+            </select>
+          </label>
+          <button class="btn ghost" id="s-clear">Limpar a placa</button>
+        </div>
+      </div>
+      <div>
+        <div class="ctrl meter" id="s-mm" hidden style="margin-bottom:14px">
+          <div class="mm-top"><h3>Multímetro</h3><button class="link" id="s-mm-off" type="button">Guardar o multímetro</button></div>
+          <div class="lcd" aria-live="polite"><span id="s-mm-val">- - -</span><small id="s-mm-unit"></small></div>
+          <div class="seg" id="s-mm-mode"></div>
+          <p class="tip" id="s-mm-tip"></p>
+          <div class="status" id="s-mm-status"></div>
+          <button class="btn" id="s-mm-fuse" hidden>Trocar o fusível</button>
+        </div>
+        <div class="ctrl" id="s-insp"></div>
+        <div class="ctrl" style="margin-top:14px">
+          <h3>O que aconteceu</h3>
+          <ul class="log" id="s-log"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+function go(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.p===id));document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!==id);window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.p));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+function seg(sel,opts,onPick){const el=$(sel);const btns=opts.map(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.label;b.onclick=()=>onPick(o.v);el.appendChild(b);return [o.v,b];});return v=>btns.forEach(([k,b])=>b.classList.toggle('on',k===v));}
+const fmtR=r=>r===0?'sem resistor':r>=1e6?(r/1e6)+' MΩ':r>=1000?(r/1000).toString().replace('.',',')+' kΩ':r+' Ω';
+const fmtI=a=>a<=0?'0 mA':a<0.001?Math.round(a*1e6)+' µA':(a*1000).toFixed(a<0.01?1:0).replace('.',',')+' mA';
+const setStatus=(el,st,msg)=>{el.className='status '+st;el.textContent=msg;};
+const flowSpeed=(el,I,ref)=>{if(I>0){el.style.opacity=1;el.style.animationDuration=Math.max(.25,Math.min(4,ref/I))+'s';}else el.style.opacity=0;};
+
+/* ---------- LED + RESISTOR ---------- */
+const RES=[0,47,100,220,330,470,1000,2200,4700,10000];
+const LEDS={vermelho:{vf:2.0,c:'#ff3b2f'},verde:{vf:2.2,c:'#39e36b'},azul:{vf:3.1,c:'#3fa9ff'}};
+const BC=['#111','#7a4a21','#d22','#f08a1c','#f2d31b','#2a9d4a','#2b62d9','#7b3fc4','#888','#f5f5f5'];
+const L={V:9,ri:5,led:'vermelho',burned:null};
+const done=new Set();
+const markV=seg('#l-volt',[3,5,9,12].map(v=>({label:v+' V',v})),v=>{L.V=v;updLED();});
+const markL=seg('#l-led',Object.keys(LEDS).map(k=>({label:k,v:k})),v=>{L.led=v;updLED();});
+$('#l-r').oninput=e=>{L.ri=+e.target.value;updLED();};
+$('#l-reset').onclick=()=>{L.burned=null;updLED();};
+
+function updLED(){
+  const {vf,c}=LEDS[L.led],R=RES[L.ri],V=L.V;
+  let I=0,P=0,st,msg;
+  if(!L.burned&&V>=vf){
+    if(R===0)L.burned='Sem resistor, nada limita a corrente. Ela dispara na hora e o LED queima.';
+    else{const i=(V-vf)/R;
+      if(i>0.03)L.burned=`Iam passar ${Math.round(i*1000)} mA, e o LED aguenta uns 20 mA. Queimou.`;
+      else if(i*i*R>0.25)L.burned='O resistor esquentou além de 1/4 W e queimou.';
+      else{I=i;P=i*i*R;}}
+  }
+  if(L.burned){st='bad';msg=L.burned+' Uma peça queimada abre o circuito: a corrente para de vez. Troque a peça e suba o resistor.';done.add(3);}
+  else if(V<vf){st='';msg=`${V} V não alcança os ~${vf.toString().replace('.',',')} V que o LED ${L.led} precisa para conduzir. Nenhuma corrente passa, e nenhum resistor resolve: falta tensão.`;if(L.led==='azul'&&V===3)done.add(4);}
+  else{const mA=I*1000;
+    if(mA>20){st='warn';msg=`Acende forte, mas ${Math.round(mA)} mA passa do limite de 20 mA. O LED esquenta e dura pouco. Suba um degrau no resistor.`;}
+    else if(mA>=5){st='ok';msg=`Perfeito: ${fmtI(I)}, dentro da faixa segura (5 a 20 mA). O resistor segurou a sobra de ${(V-vf).toFixed(1).replace('.',',')} V.`;
+      if(L.led==='vermelho'&&V===5)done.add(1);if(V===12)done.add(2);}
+    else if(mA>0.5){st='';msg=`Acende fraquinho (${fmtI(I)}). O resistor está segurando corrente demais. Tente um menor.`;}
+    else{st='';msg='A corrente é tão pequena que o LED quase não acende. Resistor grande demais.';}
+  }
+  setStatus($('#l-status'),st,msg);
+  $('#l-reset').hidden=!L.burned;
+  $('#l-i').textContent=fmtI(I);
+  $('#l-p').textContent=P>0?(P<0.01?(P*1000).toFixed(1).replace('.',',')+' mW':Math.round(P*1000)+' mW'):'0 mW';
+  $('#l-rtxt').textContent=fmtR(R);$('#l-rlabel').textContent=fmtR(R);$('#l-vtext').textContent=V+' V';
+  $('#l-res').style.display=R===0?'none':'';
+  if(R>0){const s=String(R),b=[BC[+s[0]],BC[+s[1]],BC[s.length-2]];['#l-b1','#l-b2','#l-b3'].forEach((id,k)=>$(id).setAttribute('fill',b[k]));}
+  const body=$('#l-ledbody'),glow=$('#l-glow');
+  body.setAttribute('fill',L.burned?'#4a4a4a':c);glow.setAttribute('fill',c);
+  glow.setAttribute('opacity',Math.min(1,Math.sqrt(I/0.02)).toFixed(2));
+  $('#l-smoke').setAttribute('opacity',L.burned?1:0);
+  flowSpeed($('#l-flow'),I,0.012);
+  const Rid=V>vf?(V-vf)/0.015:0,next=RES.find(r=>r>=Rid&&r>0);
+  $('#l-recipe').innerHTML=V<vf?`Com ${V} V não dá: o LED ${L.led} precisa de mais que ${vf.toString().replace('.',',')} V. A saída é usar uma fonte maior.`:
+    `<span class="eq">R = (${V} − ${vf.toString().replace('.',',')}) ÷ 0,015 = ${Math.round(Rid)} Ω</span>Use o próximo valor comercial acima: <b>${fmtR(next)}</b>. Mirar em 15 mA deixa uma margem abaixo dos 20 mA.`;
+  markV(V);markL(L.led);
+  document.querySelectorAll('#l-goals li').forEach(li=>li.classList.toggle('done',done.has(+li.dataset.g)));
+}
+updLED();
+
+/* ---------- CAPACITOR ---------- */
+const K={uF:1000,rating:16,mode:'carga',Vc:0,burst:false,I:0};
+const markM=seg('#c-mode',[{label:'Ligar na bateria',v:'carga'},{label:'Ligar no LED',v:'desc'}],v=>{K.mode=v;markM(v);});
+const markS=seg('#c-size',[470,1000,2200].map(v=>({label:v+' µF',v})),v=>{K.uF=v;markS(v);$('#c-label').textContent=v+' µF';});
+const markRt=seg('#c-rate',[6.3,16,25].map(v=>({label:String(v).replace('.',',')+' V',v})),v=>{K.rating=v;markRt(v);});
+$('#c-reset').onclick=()=>{K.Vc=0;K.burst=false;};
+markM('carga');markS(1000);markRt(16);
+let last=null,lastBucket='';
+function capLoop(t){
+  const dt=last?Math.min(.05,(t-last)/1000):0;last=t;
+  const C=K.uF*1e-6;let I=0;
+  if(K.burst){K.Vc=0;}
+  else if(K.mode==='carga'){I=(9-K.Vc)/1000;K.Vc+=I/C*dt;if(K.Vc>K.rating)K.burst=true;}
+  else{I=Math.max(0,(K.Vc-2)/1000);K.Vc=Math.max(0,K.Vc-(I/C+K.Vc*0.02)*dt);}
+  const Vc=K.Vc;
+  $('#c-fill').setAttribute('height',(60*Math.min(1,Vc/9)).toFixed(1));
+  $('#c-fill').setAttribute('y',(162-60*Math.min(1,Vc/9)).toFixed(1));
+  const vtxt=Vc.toFixed(1).replace('.',',')+' V';
+  $('#c-vtext').textContent=vtxt;$('#c-v').textContent=vtxt;$('#c-i').textContent=fmtI(I<0.00005?0:I);
+  $('#c-lever').setAttribute('x2',K.mode==='carga'?140:220);
+  $('#c-glow').setAttribute('opacity',K.mode==='desc'?Math.min(1,Math.sqrt(I/0.007)).toFixed(2):0);
+  $('#c-boom').setAttribute('opacity',K.burst?1:0);
+  const bucket=K.mode+Math.round(I*2000);
+  if(bucket!==lastBucket){lastBucket=bucket;flowSpeed($('#c-flow1'),K.mode==='carga'?I:0,0.004);flowSpeed($('#c-flow2'),K.mode==='desc'?I:0,0.004);}
+  let st='',msg;
+  if(K.burst){st='bad';msg=`Estourou. Um capacitor de ${String(K.rating).replace('.',',')} V não aguenta os 9 V da bateria. A tensão máxima do capacitor tem que ficar acima da do circuito (aqui, 16 V ou 25 V).`;}
+  else if(K.mode==='carga'){msg=Vc<8.8?`Enchendo. A corrente começa forte e vai caindo conforme ele enche. Com ${K.uF} µF, ${K.uF>1000?'demora mais':K.uF<1000?'enche rápido':'leva uns segundos'}.`:'Cheio. Repare que a corrente parou: capacitor cheio não deixa corrente contínua atravessar. Agora vire a chave para o LED.';if(Vc>=8.8)st='ok';}
+  else{if(Vc>2.15){st='ok';msg='O LED acende com a energia que o capacitor guardou, sem bateria nenhuma. Quanto maior o µF, mais tempo dura.';}
+    else if(Vc>0.3)msg='Abaixo de uns 2 V o LED não acende mais. Sobrou um restinho de carga, que vai escoando devagar.';
+    else msg='Vazio. Ligue de novo na bateria para encher.';}
+  const s=$('#c-status');if(s.textContent!==msg||!s.classList.contains(st||'x'))setStatus(s,st,msg);
+  requestAnimationFrame(capLoop);
+}
+requestAnimationFrame(capLoop);
+
+/* ---------- TRANSISTOR ---------- */
+const RB=[0,1000,10000,100000,1000000];
+const T={pressed:false,rb:10000,burned:false};
+const ISAT=(9-2-0.2)/470;
+const markRb=seg('#t-rsel',RB.map(v=>({label:v===0?'nenhum':fmtR(v),v})),v=>{T.rb=v;updT();});
+$('#t-press').onclick=()=>{T.pressed=!T.pressed;updT();};
+$('#t-reset').onclick=()=>{T.burned=false;T.pressed=false;updT();};
+function updT(){
+  const Rb=T.rb;let Ib=0,Ic=0,st='',msg;
+  if(T.pressed&&Rb===0)T.burned=true;
+  if(T.burned){st='bad';msg='A base foi ligada direto nos 9 V, sem resistor. A corrente na base disparou e o transistor queimou. Regra: base sempre com resistor.';}
+  else if(!T.pressed){msg='Botão solto: nenhuma corrente na base. A torneira fica fechada e o LED apagado, mesmo com 9 V ali do lado.';}
+  else{Ib=(9-0.7)/Rb;Ic=Math.min(100*Ib,ISAT);
+    if(100*Ib>=ISAT){st='ok';msg=`Uma correntinha de ${fmtI(Ib)} na base abriu a torneira toda: passam ${fmtI(Ic)} pelo LED.`+(Rb===1000?' Funciona, mas gasta na base mais do que precisa. 10 kΩ já bastaria.':' O limite agora é o resistor de 470 Ω do LED.');}
+    else{st='warn';msg=`Com só ${fmtI(Ib)} na base, a torneira abre um pouco: ${fmtI(Ic)} no LED. O transistor multiplica a corrente da base (uns 100×). Um resistor de base menor abre mais.`;}}
+  setStatus($('#t-status'),st,msg);
+  $('#t-reset').hidden=!T.burned;
+  $('#t-press').textContent=T.pressed?'Soltar o botão':'Apertar o botão';
+  $('#t-btn').setAttribute('x2',T.pressed?140:160);$('#t-btn').setAttribute('y2',T.pressed?90:84);
+  $('#t-rb').style.display=Rb===0?'none':'';
+  $('#t-rblabel').textContent=Rb===0?'sem resistor':fmtR(Rb);$('#t-rtxt').textContent=fmtR(Rb);
+  $('#t-ib').textContent=fmtI(Ib);$('#t-ic').textContent=fmtI(Ic);
+  $('#t-g').textContent=Ib>0?'×'+Math.round(Ic/Ib):'—';
+  $('#t-glow').setAttribute('opacity',Math.min(1,Math.sqrt(Ic/0.015)).toFixed(2));
+  $('#t-body').setAttribute('fill',T.burned?'#5a3a36':'#2b2f2c');
+  $('#t-smoke').setAttribute('opacity',T.burned?1:0);
+  flowSpeed($('#t-flowc'),Ic,0.01);flowSpeed($('#t-flowb'),Ib,0.0003);
+  markRb(Rb);
+}
+updT();
+
+/* ---------- SANDBOX ---------- */
+(()=>{
+const COLS=8,ROWS=6,SP=56,OFF=30,NS='http://www.w3.org/2000/svg';
+const px=k=>OFF+(k%COLS)*SP,py=k=>OFF+Math.floor(k/COLS)*SP,N=(c,r)=>r*COLS+c,cr=k=>[k%COLS,Math.floor(k/COLS)];
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
+const VT=0.02585,GMIN=1e-9,RINT=0.2,RW=0.01,DT=0.001,IST=1e-14,BF=100,BR=1;
+const LEDP={vermelho:{vf:2.0,c:'#ff3b2f'},verde:{vf:2.2,c:'#39e36b'},azul:{vf:3.1,c:'#3fa9ff'}};
+const NAME={wire:'Fio',bat:'Bateria',res:'Resistor',led:'LED',dio:'Diodo',cap:'Capacitor',npn:'Transistor NPN',sw:'Chave'};
+const TOOLS=[
+ {id:'sel',label:'Mexer'},
+ {id:'wire',label:'Fio',taps:['Toque onde o fio começa.','Agora onde ele termina.']},
+ {id:'bat',label:'Bateria',taps:['Toque onde fica o + da bateria.','Agora o −, num ponto vizinho.']},
+ {id:'res',label:'Resistor',taps:['Toque numa ponta do resistor.','Agora na outra, num ponto vizinho.']},
+ {id:'led',label:'LED',taps:['Toque onde vai a perna longa (+).','Agora a perna curta (−), num ponto vizinho.']},
+ {id:'dio',label:'Diodo',taps:['Toque na entrada do diodo.','Agora na saída (lado da barra), num ponto vizinho.']},
+ {id:'cap',label:'Capacitor',taps:['Toque onde vai o + do capacitor.','Agora o −, num ponto vizinho.']},
+ {id:'npn',label:'Transistor',taps:['Toque onde vai o coletor (C).','Agora a base (B), vizinha do coletor.','Agora o emissor (E), vizinho da base.']},
+ {id:'sw',label:'Chave',taps:['Toque numa ponta da chave.','Agora na outra, num ponto vizinho.']},
+ {id:'mm',label:'Multímetro'},
+ {id:'del',label:'Apagar'}
+];
+const TIP={
+ sel:'Toque numa peça para ver tensão e corrente, ligar ou desligar chaves e trocar valores. Toque num ponto da placa para medir a tensão dele.',
+ wire:'Liga pontos. Pode ser comprido, em linha reta ou na diagonal, e conecta todos os pontos por onde passa.',
+ bat:'Empurra a corrente. O + fica do lado da placa comprida. O − da primeira bateria vira o 0 V da placa.',
+ res:'Limita a corrente. Aguenta 1/4 W: se esquentar mais que isso, queima.',
+ led:'Acende com 5 a 20 mA. Precisa de resistor em série e só conduz com a perna longa no lado positivo.',
+ dio:'Deixa a corrente passar só no sentido da seta. Consome uns 0,7 V.',
+ cap:'Guarda carga. O + é o primeiro ponto que você toca. Acima da tensão máxima, ou invertido, estoura.',
+ npn:'Uma correntinha entrando na base libera uma corrente bem maior do coletor para o emissor. Base sempre com resistor.',
+ sw:'Abre ou fecha o caminho. Com a ferramenta Mexer, toque nela para ligar e desligar.',
+ mm:'Encoste as pontas nos pontos da placa. A leitura aparece no painel do multímetro, onde você escolhe tensão (V), corrente (A) ou resistência (Ω).',
+ del:'Toque na peça que quer tirar da placa.'
+};
+const HW={wire:0,res:18,bat:5,cap:5,led:10,dio:10,sw:14};
+const P={bat:9,res:470,led:'vermelho',cap:1000,rate:16};
+const fVn=v=>String(v).replace('.',',')+' V';
+const OPT={bat:[1.5,3,5,9,12].map(v=>[v,fVn(v)]),res:[10,47,100,220,470,1000,2200,4700,10000,47000,100000,1000000].map(v=>[v,fmtR(v)]),
+ led:[['vermelho','vermelho'],['verde','verde'],['azul','azul']],cap:[10,100,470,1000,2200].map(v=>[v,v+' µF']),rate:[6.3,16,25].map(v=>[v,fVn(v)])};
+const fV=v=>(Math.abs(v)<10?v.toFixed(2):v.toFixed(1)).replace('.',',').replace(/^-0,00/,'0,00')+' V';
+const fA=i=>{const a=Math.abs(i);if(a<1e-6)return '0 mA';if(a<1e-3)return Math.round(a*1e6)+' µA';if(a<1)return (a*1e3).toFixed(a<0.01?1:0).replace('.',',')+' mA';return a.toFixed(1).replace('.',',')+' A';};
+const fW=p=>p<1?(p*1000).toFixed(p<0.01?1:0).replace('.',',')+' mW':p.toFixed(1).replace('.',',')+' W';
+
+let comps=[],tool='sel',pend=[],selC=null,probe=null,dirty=false,Vn={};
+const mm={r:null,b:null,next:'r',mode:'V',fuse:true,stress:0,V:0,I:0};
+const RMM=0.1;
+const mmOn=()=>mm.r!==null&&mm.b!==null&&mm.r!==mm.b;
+const svg=$('#s-board');
+const gP=el('g',{},svg),gF=el('g',{},svg),gL=el('g',{},svg),gN=el('g',{},svg);
+
+const mk=(t,n,p,on)=>({type:t,n:n.slice(),p:Object.assign({},p||{}),on:!!on,burned:false,why:'',stress:0,I:0,v:0,vPrev:0,Ic:0,Ib:0,Vce:0});
+const defP=t=>t==='bat'?{V:P.bat}:t==='res'?{R:P.res}:t==='led'?{color:P.led}:t==='cap'?{uF:P.cap,rate:P.rate}:{};
+function adj(a,b){const [c1,r1]=cr(a),[c2,r2]=cr(b);return a!==b&&Math.max(Math.abs(c1-c2),Math.abs(r1-r2))===1;}
+function addWire(a,b){const [c1,r1]=cr(a),[c2,r2]=cr(b),dc=c2-c1,dr=r2-r1;
+ if(!(dc===0||dr===0||Math.abs(dc)===Math.abs(dr)))return false;
+ const s=Math.max(Math.abs(dc),Math.abs(dr)),sx=Math.sign(dc),sy=Math.sign(dr);
+ for(let i=0;i<s;i++){const p=N(c1+i*sx,r1+i*sy),q=N(c1+(i+1)*sx,r1+(i+1)*sy);
+  if(!comps.some(c=>c.type==='wire'&&((c.n[0]===p&&c.n[1]===q)||(c.n[0]===q&&c.n[1]===p))))comps.push(mk('wire',[p,q]));}
+ return true;}
+function groundNode(){const b=comps.find(c=>c.type==='bat'&&!c.burned);if(b)return b.n[1];return comps.length?comps[0].n[0]:null;}
+
+/* ----- simulador (análise nodal + Newton) ----- */
+const lexp=(x,xm)=>{if(x>xm){const e=Math.exp(xm);return [e*(1+x-xm),e];}const e=Math.exp(Math.max(x,-80));return [e,e];};
+function dpar(c){if(c.type==='led'){const n=2,Is=0.01/Math.exp(LEDP[c.p.color].vf/(n*VT));return {n,Is,xm:Math.log(2/Is)};}return {n:1,Is:1e-14,xm:Math.log(2/1e-14)};}
+function npnEval(Vc,Vb,Ve){const xm=Math.log(1/IST),[ef,def]=lexp((Vb-Ve)/VT,xm),[er,der]=lexp((Vb-Vc)/VT,xm);
+ const Ic=IST*(ef-er)-(IST/BR)*(er-1),Ib=(IST/BF)*(ef-1)+(IST/BR)*(er-1);
+ const gF=IST*def/VT+1e-12,gR=IST*der/VT+1e-12,cbe=gF,cbc=-gR-gR/BR,bbe=gF/BF,bbc=gR/BR;
+ return {Ic,Ib,pIc:[-cbc,cbe+cbc,-cbe],pIb:[-bbc,bbe+bbc,-bbe]};}
+function solve(A,b){const n=b.length;
+ for(let i=0;i<n;i++){let p=i,mx=Math.abs(A[i][i]);for(let r=i+1;r<n;r++){const v=Math.abs(A[r][i]);if(v>mx){mx=v;p=r;}}
+  if(mx<1e-20)return null;if(p!==i){const t=A[i];A[i]=A[p];A[p]=t;const tb=b[i];b[i]=b[p];b[p]=tb;}
+  const pv=A[i][i];for(let r=i+1;r<n;r++){const f=A[r][i]/pv;if(f){for(let c=i;c<n;c++)A[r][c]-=f*A[i][c];b[r]-=f*b[i];}}}
+ const x=new Float64Array(n);for(let i=n-1;i>=0;i--){let s=b[i];for(let c=i+1;c<n;c++)s-=A[i][c]*x[c];x[i]=s/A[i][i];}return x;}
+function over(c,cond,lim,why){if(cond){c.stress+=DT;if(c.stress>=lim){c.burned=true;c.why=why;c.stress=0;dirty=true;log(why,'bad');}}else c.stress=Math.max(0,c.stress-DT);}
+
+function step(){
+ const act=comps.filter(c=>!c.burned),gnd=groundNode();if(gnd===null)return;
+ const used=new Set();comps.forEach(c=>c.n.forEach(x=>used.add(x)));if(mm.r!==null)used.add(mm.r);if(mm.b!==null)used.add(mm.b);used.delete(gnd);
+ const list=[...used],n=list.length,idx=new Map(list.map((x,i)=>[x,i]));idx.set(gnd,-1);
+ const V=list.map(x=>Vn[x]||0),vo=x=>{const i=idx.get(x);return i<0?0:V[i];};
+ for(let it=0;it<80;it++){
+  const G=[];for(let i=0;i<n;i++){G.push(new Float64Array(n));G[i][i]=GMIN;}const B=new Float64Array(n);
+  const aG=(a,b,g)=>{const i=idx.get(a),j=idx.get(b);if(i>=0)G[i][i]+=g;if(j>=0)G[j][j]+=g;if(i>=0&&j>=0){G[i][j]-=g;G[j][i]-=g;}};
+  const aI=(a,I)=>{const i=idx.get(a);if(i>=0)B[i]+=I;};
+  for(const c of act){const a=c.n[0],b=c.n[1];
+   if(c.type==='wire'||(c.type==='sw'&&c.on))aG(a,b,1/RW);
+   else if(c.type==='res')aG(a,b,1/c.p.R);
+   else if(c.type==='bat'){aG(a,b,1/RINT);aI(a,c.p.V/RINT);aI(b,-c.p.V/RINT);}
+   else if(c.type==='cap'){const g=c.p.uF*1e-6/DT;aG(a,b,g);aI(a,g*c.vPrev);aI(b,-g*c.vPrev);}
+   else if(c.type==='led'||c.type==='dio'){const d=dpar(c),vd=vo(a)-vo(b),[e,de]=lexp(vd/(d.n*VT),d.xm),I=d.Is*(e-1),g=d.Is*de/(d.n*VT)+1e-12,Ieq=I-g*vd;aG(a,b,g);aI(a,-Ieq);aI(b,Ieq);}
+   else if(c.type==='npn'){const nd=c.n,vs=nd.map(vo),m=npnEval(vs[0],vs[1],vs[2]),pIe=m.pIc.map((v,k)=>-(v+m.pIb[k]));
+    [[nd[0],m.Ic,m.pIc],[nd[1],m.Ib,m.pIb],[nd[2],-(m.Ic+m.Ib),pIe]].forEach(([nk,I0,p])=>{const i=idx.get(nk);if(i<0)return;let lin=I0;
+     for(let j=0;j<3;j++){lin-=p[j]*vs[j];const jj=idx.get(nd[j]);if(jj>=0)G[i][jj]+=p[j];}B[i]-=lin;});}
+  }
+  if(mmOn()){if(mm.mode==='V')aG(mm.r,mm.b,1e-7);else if(mm.mode==='A'&&mm.fuse)aG(mm.r,mm.b,1/RMM);}
+  const x=solve(G,B);if(!x)break;
+  let md=0;for(let i=0;i<n;i++){let d=x[i]-V[i];if(!isFinite(d))d=0;d=Math.max(-1,Math.min(1,d));V[i]+=d;md=Math.max(md,Math.abs(d));}
+  if(md<1e-7)break;
+ }
+ list.forEach((x,i)=>Vn[x]=V[i]);Vn[gnd]=0;
+ if(mmOn()){mm.V=(Vn[mm.r]||0)-(Vn[mm.b]||0);mm.I=(mm.mode==='A'&&mm.fuse)?mm.V/RMM:0;
+  if(Math.abs(mm.I)>0.4){mm.stress+=DT;if(mm.stress>0.02){mm.fuse=false;mm.stress=0;dirty=true;
+   log(`O fusível do multímetro queimou: passaram ${fA(mm.I)} por ele (o limite é 400 mA). No modo corrente o multímetro é quase um fio. Com as pontas em paralelo com a bateria ou com uma peça, ele vira um atalho.`,'bad');}}
+  else mm.stress=Math.max(0,mm.stress-DT);}
+ const v=x=>Vn[x]||0;
+ for(const c of comps){
+  const a=c.n[0],b=c.n[1];c.v=v(a)-v(b);
+  if(c.burned){c.I=0;c.Ic=0;c.Ib=0;continue;}
+  switch(c.type){
+   case 'wire':c.I=c.v/RW;break;
+   case 'sw':c.I=c.on?c.v/RW:0;break;
+   case 'res':{c.I=c.v/c.p.R;const Pw=c.I*c.I*c.p.R;over(c,Pw>0.25,0.3,`Resistor de ${fmtR(c.p.R)} queimou: esquentou ${fW(Pw)}, e ele aguenta 1/4 W.`);break;}
+   case 'bat':c.I=(c.p.V-c.v)/RINT;
+    if(Math.abs(c.I)>3&&!c.warned){c.warned=true;log(`Curto-circuito na bateria de ${fVn(c.p.V)}: ${fA(c.I)} saindo, sem nada para limitar.`,'bad');}
+    if(Math.abs(c.I)<1)c.warned=false;
+    over(c,Math.abs(c.I)>3,1.5,`A bateria de ${fVn(c.p.V)} estragou: ficou em curto-circuito até esquentar demais.`);break;
+   case 'cap':{const g=c.p.uF*1e-6/DT;c.I=g*(c.v-c.vPrev);c.vPrev=c.v;
+    if(c.v<-1.5)over(c,true,0.05,'Capacitor estourou: foi ligado ao contrário. Eletrolítico tem lado certo.');
+    else over(c,c.v>c.p.rate,0.05,`Capacitor estourou: recebeu ${fV(c.v)} e aguenta ${fVn(c.p.rate)}.`);break;}
+   case 'led':case 'dio':{const d=dpar(c);c.I=d.Is*(lexp(c.v/(d.n*VT),d.xm)[0]-1);
+    if(c.type==='led')over(c,c.I>0.03,0.05,`LED ${c.p.color} queimou: passaram ${fA(c.I)}, e ele aguenta uns 20 mA. Faltou um resistor em série.`);
+    else over(c,c.I>1,0.05,`Diodo queimou: ${fA(c.I)} é demais para ele.`);break;}
+   case 'npn':{const [nc,nb,ne]=c.n,m=npnEval(v(nc),v(nb),v(ne));c.Ic=m.Ic;c.Ib=m.Ib;c.Vce=v(nc)-v(ne);c.I=c.Ic;
+    if(c.Ib>0.05)over(c,true,0.05,`Transistor queimou: ${fA(c.Ib)} entrando na base. A base precisa de um resistor.`);
+    else over(c,c.Ic>0.8||c.Ic*c.Vce>0.8,0.1,`Transistor queimou: ${fA(c.Ic)} no coletor é demais para ele.`);break;}
+  }
+ }
+}
+
+/* ----- desenho ----- */
+function lab(x,y,t,anchor,p){const e=el('text',{x,y,'text-anchor':anchor||'middle',class:'silk'},p||gL);e.textContent=t;return e;}
+function flowEl(x1,y1,x2,y2){const e=el('path',{class:'sflow',d:`M${x1} ${y1}L${x2} ${y2}`},gF);e.style.opacity=0;return {e,x1,y1,x2,y2,dir:1,on:false,q:0};}
+function draw2(c,off){
+ const [a,b]=c.n;let ox=0,oy=0;
+ if(off){const lo=Math.min(a,b),hi=Math.max(a,b),dx=px(hi)-px(lo),dy=py(hi)-py(lo),l=Math.hypot(dx,dy);ox=-dy/l*off;oy=dx/l*off;}
+ const x1=px(a)+ox,y1=py(a)+oy,x2=px(b)+ox,y2=py(b)+oy,L=Math.hypot(x2-x1,y2-y1),ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI,m=L/2,h=HW[c.type],S='var(--silk)';
+ const outer=el('g',{class:'part'+(c.burned?' burned':'')+(selC===c?' selected':'')},gP);c._g=outer;
+ if(off){el('line',{x1:px(a),y1:py(a),x2:x1,y2:y1,class:'lead'},outer);el('line',{x1:px(b),y1:py(b),x2:x2,y2:y2,class:'lead'},outer);}
+ const g=el('g',{transform:`translate(${x1} ${y1}) rotate(${ang})`},outer);
+ el('line',{x1:0,y1:0,x2:L,y2:0,class:'hit'},g);
+ if(!h)el('line',{x1:0,y1:0,x2:L,y2:0,class:'lead'},g);
+ else{el('line',{x1:0,y1:0,x2:m-h,y2:0,class:'lead'},g);el('line',{x1:m+h,y1:0,x2:L,y2:0,class:'lead'},g);}
+ if(c.type==='res'){el('rect',{x:m-18,y:-7,width:36,height:14,rx:5,fill:'#e2c592'},g);const s=String(c.p.R);
+  [BC[+s[0]],BC[+s[1]],BC[s.length-2]].forEach((col,k)=>el('rect',{x:m-12+k*7,y:-7,width:4,height:14,fill:col},g));el('rect',{x:m+10,y:-7,width:3,height:14,fill:'#c9a227'},g);}
+ if(c.type==='bat'){el('line',{x1:m-5,y1:-16,x2:m-5,y2:16,stroke:S,'stroke-width':3},g);el('line',{x1:m+5,y1:-8,x2:m+5,y2:8,stroke:S,'stroke-width':6},g);}
+ if(c.type==='cap'){el('line',{x1:m-5,y1:-14,x2:m-5,y2:14,stroke:S,'stroke-width':4},g);el('line',{x1:m+5,y1:-14,x2:m+5,y2:14,stroke:S,'stroke-width':4},g);}
+ if(c.type==='led'||c.type==='dio'){const col=c.type==='led'?LEDP[c.p.color].c:S;
+  if(c.type==='led')c._glow=el('circle',{cx:m,cy:0,r:22,fill:col,opacity:0,filter:'url(#sblur)','pointer-events':'none'},g);
+  el('polygon',{points:`${m-10},-11 ${m-10},11 ${m+9},0`,fill:c.burned?'#4a4a4a':col,stroke:S,'stroke-width':1},g);
+  el('line',{x1:m+10,y1:-11,x2:m+10,y2:11,stroke:S,'stroke-width':3},g);}
+ if(c.type==='sw'){el('circle',{cx:m-14,cy:0,r:4,fill:S},g);el('circle',{cx:m+14,cy:0,r:4,fill:S},g);
+  el('line',{x1:m-14,y1:0,x2:c.on?m+14:m+9,y2:c.on?0:-15,stroke:S,'stroke-width':3.5,'stroke-linecap':'round'},g);}
+ outer.addEventListener('click',()=>tapComp(c));
+ const mx=(x1+x2)/2,my=(y1+y2)/2,hz=Math.abs(x2-x1)>=Math.abs(y2-y1);
+ const txt=c.type==='bat'?fVn(c.p.V):c.type==='res'?fmtR(c.p.R):c.type==='cap'?c.p.uF+' µF':'';
+ if(txt){hz?lab(mx,my-16,txt):lab(mx+14,my+4,txt,'start');}
+ if(c.type==='bat'||c.type==='cap'){const t=Math.max(0.1,0.5-(h+9)/L),qx=x1+(x2-x1)*t,qy=y1+(y2-y1)*t;hz?lab(qx,qy+20,'+'):lab(qx-12,qy+4,'+');}
+ if(c.burned)el('text',{x:mx+4,y:my-4,'font-size':20},gL).textContent=c.type==='cap'?'💥':'💨';
+ c._flow=[flowEl(x1,y1,x2,y2)];
+}
+function drawNPN(c){
+ const [nc,nb,ne]=c.n,C=[px(nc),py(nc)],Bp=[px(nb),py(nb)],E=[px(ne),py(ne)];
+ const ox=Bp[0]+((C[0]+E[0])/2-Bp[0])*0.5,oy=Bp[1]+((C[1]+E[1])/2-Bp[1])*0.5;
+ const g=el('g',{class:'part'+(c.burned?' burned':'')+(selC===c?' selected':'')},gP);c._g=g;
+ [C,Bp,E].forEach(p=>{el('line',{x1:p[0],y1:p[1],x2:ox,y2:oy,class:'hit'},g);el('line',{x1:p[0],y1:p[1],x2:ox,y2:oy,class:'lead'},g);});
+ el('circle',{cx:ox,cy:oy,r:20,fill:'transparent'},g);
+ el('circle',{cx:ox,cy:oy,r:14,fill:c.burned?'#5a3a36':'#2b2f2c',stroke:'var(--silk)','stroke-width':1.5},g);
+ const L=Math.hypot(E[0]-ox,E[1]-oy)||1,ux=(E[0]-ox)/L,uy=(E[1]-oy)/L;
+ el('polygon',{points:`${ox+ux*26},${oy+uy*26} ${ox+ux*18-uy*5},${oy+uy*18+ux*5} ${ox+ux*18+uy*5},${oy+uy*18-ux*5}`,fill:'var(--silk)'},g);
+ [[C,'C'],[Bp,'B'],[E,'E']].forEach(([p,t])=>{const dx=ox-p[0],dy=oy-p[1],l=Math.hypot(dx,dy)||1;lab(p[0]+dx*0.45-dy/l*10,p[1]+dy*0.45+dx/l*10+4,t);});
+ g.addEventListener('click',()=>tapComp(c));
+ if(c.burned)el('text',{x:ox+6,y:oy-10,'font-size':20},gL).textContent='💨';
+ c._flow=[flowEl(C[0],C[1],ox,oy),flowEl(Bp[0],Bp[1],ox,oy),flowEl(ox,oy,E[0],E[1])];
+}
+function drawNodes(){
+ const used=new Set();comps.forEach(c=>c.n.forEach(x=>used.add(x)));
+ const r=(tool==='sel'||tool==='del')?10:22,gnd=groundNode();
+ for(let k=0;k<COLS*ROWS;k++){const x=px(k),y=py(k),u=used.has(k);
+  el('circle',{cx:x,cy:y,r:u?4.5:2.5,fill:'var(--silk)',opacity:u?1:.45,'pointer-events':'none'},gN);
+  if(pend.includes(k))el('circle',{cx:x,cy:y,r:11,fill:'none',stroke:'var(--flow)','stroke-width':2.5,'pointer-events':'none'},gN);
+  if(k===probe)el('circle',{cx:x,cy:y,r:9,fill:'none',stroke:'#7fd3ff','stroke-width':2.5,'pointer-events':'none'},gN);
+  el('circle',{cx:x,cy:y,r,class:'nodehit'},gN).addEventListener('click',()=>tapNode(k));}
+ if(gnd!==null&&used.has(gnd))lab(px(gnd),py(gnd)+22,'0 V','middle',gN);
+ [['b','#111'],['r','#e03a2f']].forEach(([k,col])=>{const n=mm[k];if(n===null)return;const x=px(n),y=py(n),ex=k==='r'?205:245;
+  el('path',{d:`M${x} ${y} C ${x} ${y+70}, ${ex} ${290}, ${ex} 345`,stroke:col,'stroke-width':3.5,fill:'none',opacity:.9,'pointer-events':'none'},gN);
+  el('circle',{cx:x,cy:y,r:7.5,fill:col,stroke:'#fff','stroke-width':2,'pointer-events':'none'},gN);});
+}
+const pairKey=c=>Math.min(c.n[0],c.n[1])+'-'+Math.max(c.n[0],c.n[1]);
+function drawAll(){[gP,gF,gL,gN].forEach(g=>g.replaceChildren());
+ const grp={};comps.forEach(c=>{if(c.type!=='npn')(grp[pairKey(c)]=grp[pairKey(c)]||[]).push(c);});
+ comps.forEach(c=>{if(c.type==='npn')return drawNPN(c);const g=grp[pairKey(c)],i=g.indexOf(c);draw2(c,g.length>1?(i-(g.length-1)/2)*24:0);});
+ drawNodes();}
+function bypassed(c){return c.type!=='wire'&&c.type!=='npn'&&comps.some(w=>w!==c&&!w.burned&&(w.type==='wire'||(w.type==='sw'&&w.on))&&pairKey(w)===pairKey(c));}
+function setFlow(f,I){const a=Math.abs(I);
+ if(!(a>=2e-5)||!isFinite(a)){if(f.on){f.e.style.opacity=0;f.on=false;}return;}
+ const dir=I>0?1:-1;if(dir!==f.dir){f.dir=dir;f.e.setAttribute('d',dir>0?`M${f.x1} ${f.y1}L${f.x2} ${f.y2}`:`M${f.x2} ${f.y2}L${f.x1} ${f.y1}`);}
+ const q=Math.round(Math.max(.25,Math.min(4,0.01/a))*10)/10;if(q!==f.q){f.q=q;f.e.style.animationDuration=q+'s';}
+ if(!f.on){f.e.style.opacity=1;f.on=true;}}
+function visuals(){for(const c of comps){if(!c._flow)continue;
+ if(c.type==='npn'){setFlow(c._flow[0],c.Ic);setFlow(c._flow[1],c.Ib);setFlow(c._flow[2],c.Ic+c.Ib);}
+ else setFlow(c._flow[0],c.type==='bat'?-c.I:c.I);
+ if(c._glow)c._glow.setAttribute('opacity',c.burned?0:Math.min(1,Math.sqrt(Math.max(0,c.I)/0.02)).toFixed(2));
+ if(c.type==='bat'&&c._g)c._g.classList.toggle('hot',!c.burned&&Math.abs(c.I)>3);}}
+
+/* ----- painéis ----- */
+function log(msg,cls){const ul=$('#s-log'),li=document.createElement('li');li.textContent=msg;if(cls)li.className=cls;ul.prepend(li);while(ul.children.length>5)ul.lastChild.remove();}
+function makeSel(label,opts,val,on){const l=document.createElement('label');l.append(label+' ');const s=document.createElement('select');
+ opts.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;if(String(v)===String(val))o.selected=true;s.appendChild(o);});
+ s.onchange=()=>{const o=opts.find(([v])=>String(v)===s.value);if(o)on(o[0]);};l.appendChild(s);return l;}
+function mkBtn(t,cls,fn){const b=document.createElement('button');b.type='button';b.className='btn'+(cls?' '+cls:'');b.textContent=t;b.onclick=fn;return b;}
+function renderParams(){const box=$('#s-params');box.replaceChildren();
+ if(tool==='bat')box.append(makeSel('Tensão',OPT.bat,P.bat,v=>P.bat=v));
+ if(tool==='res')box.append(makeSel('Valor',OPT.res,P.res,v=>P.res=v));
+ if(tool==='led')box.append(makeSel('Cor',OPT.led,P.led,v=>P.led=v));
+ if(tool==='cap')box.append(makeSel('Tamanho',OPT.cap,P.cap,v=>P.cap=v),makeSel('Aguenta até',OPT.rate,P.rate,v=>P.rate=v));}
+function hint(msg,err){const h=$('#s-hint');h.classList.toggle('err',!!err);if(msg){h.textContent=msg;return;}
+ if(tool==='mm'){h.textContent=mm.next==='r'?(mm.r===null?'Toque onde encostar a ponta vermelha.':'Para medir outra coisa, toque onde encostar a ponta vermelha.'):'Agora toque onde encostar a ponta preta.';return;}
+ const t=TOOLS.find(x=>x.id===tool);h.textContent=t.taps?t.taps[pend.length]:tool==='sel'?'Toque numa peça ou num ponto da placa.':'Toque na peça que quer tirar.';}
+const tb=$('#s-tools');
+TOOLS.forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t.label;b.dataset.t=t.id;b.onclick=()=>setTool(t.id);tb.appendChild(b);});
+function setTool(t){tool=t;pend=[];if(t==='mm')mm.show=true;tb.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#s-tip').textContent=TIP[t];renderParams();hint();drawAll();updateMeter();}
+function titleOf(c){return c.type==='bat'?`Bateria de ${fVn(c.p.V)}`:c.type==='res'?`Resistor de ${fmtR(c.p.R)}`:c.type==='led'?`LED ${c.p.color}`:c.type==='cap'?`Capacitor de ${c.p.uF} µF`:NAME[c.type];}
+function readings(c){const P2=Math.abs(c.I*c.v);
+ switch(c.type){
+  case 'bat':return [['Nominal',fVn(c.p.V)],['Nos terminais',fV(c.v)],['Fornecendo',fA(c.I)]];
+  case 'res':return [['Tensão',fV(Math.abs(c.v))],['Corrente',fA(c.I)],['Calor',fW(P2)]];
+  case 'led':return [['Tensão',fV(c.v)],['Corrente',fA(c.I)],['Limite','20 mA']];
+  case 'cap':return [['Guardando',fV(c.v)],['Corrente',fA(c.I)],['Aguenta',fVn(c.p.rate)]];
+  case 'npn':return [['Na base',fA(c.Ib)],['No coletor',fA(c.Ic)],['Multiplicou',c.Ib>1e-7?'×'+Math.round(c.Ic/c.Ib):'—']];
+  default:return [['Tensão',fV(c.v)],['Corrente',fA(c.I)],['Potência',fW(P2)]];}}
+function statusOf(c){
+ if(c.burned)return['bad',c.why+' Uma peça queimada abre o circuito. Corrija a montagem e troque a peça.'];
+ const I=c.I,a=Math.abs(I);
+ if(c.type!=='bat'&&c.type!=='sw'&&bypassed(c))return['warn',`Tem um fio ligado direto entre as duas pontas desta peça. A corrente pega esse atalho e passa quase nada por aqui, como se a peça nem estivesse no circuito. Tire o fio com a ferramenta Apagar.`];
+ switch(c.type){
+  case 'led':{const vf=LEDP[c.p.color].vf;
+   if(c.v<-0.5)return['warn','Está ao contrário: o LED só conduz com a perna longa (+) virada para o lado positivo.'];
+   if(I<5e-4)return['',`Apagado. Ele precisa de uns ${fVn(vf)} nas pontas e está recebendo ${fV(c.v)}. Confira se o caminho fecha até o − da bateria.`];
+   if(I<0.005)return['','Aceso fraquinho: pouca corrente. Um resistor menor deixa mais forte.'];
+   if(I<=0.02)return['ok','Aceso na faixa segura, entre 5 e 20 mA.'];
+   return['warn','Acima de 20 mA: acende forte, mas esquenta e dura pouco. Aumente o resistor.'];}
+  case 'res':{const Pw=I*I*c.p.R;if(Pw>0.2)return['warn',`Esquentando perto do limite de 1/4 W (${fW(Pw)}).`];
+   if(a<1e-6)return['','Nenhuma corrente: o caminho está aberto em algum lugar.'];return['ok',`Segurando ${fV(Math.abs(c.v))} e deixando passar ${fA(I)}.`];}
+  case 'bat':if(a>3)return['bad','Curto-circuito! Nada limita a corrente e a bateria está esquentando. Tire o fio que liga o + direto no −.'];
+   if(a<1e-6)return['','Nenhuma corrente saindo: falta um caminho fechado do + de volta até o −.'];return['ok',`Fornecendo ${fA(I)} para o circuito.`];
+  case 'cap':if(c.v<-0.5)return['warn','Tensão invertida: capacitor eletrolítico ligado ao contrário pode estourar.'];
+   if(c.v>0.8*c.p.rate)return['warn',`Perto do limite: ${fV(c.v)} de ${fVn(c.p.rate)}.`];
+   return['ok',a>1e-4?(I>0?'Enchendo agora.':'Devolvendo a carga agora.'):c.v>0.1?'Parado, com carga guardada. Cheio, ele não deixa corrente contínua passar.':'Vazio.'];
+  case 'dio':return I>1e-4?['ok','Conduzindo: deixa a corrente passar e consome uns 0,7 V.']:['','Bloqueando: a corrente não passa nesse sentido, ou falta tensão (precisa de uns 0,7 V).'];
+  case 'sw':return c.on?['ok','Ligada: o caminho está fechado.']:['','Desligada: o caminho está aberto e nada passa por aqui.'];
+  case 'npn':if(c.Ib<1e-6)return['','Fechado: sem corrente na base, nada passa do coletor para o emissor.'];
+   if(c.Vce<0.3)return['ok','Totalmente aberto: a correntinha da base liberou tudo o que o resto do circuito permite.'];
+   return['warn',`Parcialmente aberto: ${fA(c.Ib)} na base libera ${fA(c.Ic)}. Mais corrente na base abre mais.`];
+  default:return['',a>1e-6?`${fA(I)} passando.`:'Sem corrente.'];}}
+function renderInsp(){const box=$('#s-insp'),c=selC;box.replaceChildren();
+ if(!c){const h=document.createElement('h3');h.textContent='Peça selecionada';const p=document.createElement('p');p.id='s-probe';box.append(h,p);liveInsp();return;}
+ const h=document.createElement('h3');h.textContent=titleOf(c);
+ const m=document.createElement('div');m.className='meters';m.id='s-meters';m.style.marginTop='8px';
+ const st=document.createElement('div');st.className='status';st.id='s-status';
+ const ed=document.createElement('div');ed.className='srow';ed.style.marginTop='12px';
+ const upd=()=>{drawAll();save();renderInsp();};
+ if(c.type==='bat')ed.append(makeSel('Tensão',OPT.bat,c.p.V,v=>{c.p.V=v;upd();}));
+ if(c.type==='res')ed.append(makeSel('Valor',OPT.res,c.p.R,v=>{c.p.R=v;upd();}));
+ if(c.type==='led')ed.append(makeSel('Cor',OPT.led,c.p.color,v=>{c.p.color=v;upd();}));
+ if(c.type==='cap')ed.append(makeSel('Tamanho',OPT.cap,c.p.uF,v=>{c.p.uF=v;upd();}),makeSel('Aguenta até',OPT.rate,c.p.rate,v=>{c.p.rate=v;upd();}));
+ if(c.type==='sw')ed.append(mkBtn(c.on?'Desligar':'Ligar','',()=>{c.on=!c.on;upd();}));
+ if(c.burned)ed.append(mkBtn('Trocar a peça','',()=>{c.burned=false;c.why='';c.stress=0;c.vPrev=0;c.warned=false;upd();}));
+ ed.append(mkBtn('Tirar da placa','ghost',()=>{comps=comps.filter(x=>x!==c);selC=null;upd();}));
+ box.append(h,m,st,ed);liveInsp();}
+function liveInsp(){
+ if(!selC){const p=$('#s-probe');if(!p)return;
+  p.textContent=probe===null?'Com a ferramenta Mexer, toque numa peça para ver o que acontece nela, ou num ponto da placa para medir a tensão dele. O − da primeira bateria é o 0 V.':`Tensão nesse ponto: ${fV(Vn[probe]||0)} em relação ao 0 V.`;return;}
+ const m=$('#s-meters'),s=$('#s-status');if(!m)return;
+ m.innerHTML=readings(selC).map(([l,v])=>`<div class="m"><small>${l}</small><b>${v}</b></div>`).join('');
+ const [cls,msg]=statusOf(selC);s.className='status '+cls;s.textContent=msg;}
+
+/* ----- interação ----- */
+function tapNode(k){
+ if(tool==='sel'){probe=k;selC=null;drawAll();renderInsp();return;}
+ if(tool==='del')return;
+ if(tool==='mm'){if(mm.next==='r')mm.b=null;mm[mm.next]=k;mm.next=mm.next==='r'?'b':'r';mm.stress=0;drawAll();hint();updateMeter();return;}
+ if(pend.includes(k)){pend=[];drawAll();hint('Cancelado. Comece de novo.');return;}
+ pend.push(k);let err=null;
+ if(tool==='wire'){if(pend.length===2){if(!addWire(pend[0],pend[1]))err='O fio precisa ir em linha reta: horizontal, vertical ou diagonal.';else save();pend=[];}}
+ else if(tool==='npn'){
+  if(pend.length===2&&!adj(pend[0],pend[1])){err='A base precisa ficar num ponto vizinho ao coletor.';pend=[];}
+  else if(pend.length===3){if(!adj(pend[1],pend[2])||pend[2]===pend[0])err='O emissor precisa ficar num ponto vizinho à base, diferente do coletor.';else{comps.push(mk('npn',pend));save();}pend=[];}}
+ else if(pend.length===2){if(!adj(pend[0],pend[1]))err='Essa peça vai entre dois pontos vizinhos (lado a lado ou na diagonal).';else{const k=pairKey({n:pend}),before=comps.length;comps=comps.filter(w=>!(w.type==='wire'&&pairKey(w)===k));
+  if(comps.length<before)log('Tirei o fio que ligava esses dois pontos. Com ele ali, a corrente pegaria o atalho pelo fio e passaria longe da peça nova.');
+  comps.push(mk(tool,pend,defP(tool)));save();}pend=[];}
+ drawAll();hint(err,!!err);}
+function tapComp(c){
+ if(tool==='del'){comps=comps.filter(x=>x!==c);if(selC===c)selC=null;save();drawAll();renderInsp();return;}
+ if(tool!=='sel')return;
+ if(c.type==='sw'){c.on=!c.on;save();}
+ selC=c;probe=null;drawAll();renderInsp();}
+function save(){try{localStorage.setItem('bancada-sbx',JSON.stringify(comps.map(c=>({t:c.type,n:c.n,p:c.p,on:c.on}))));}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem('bancada-sbx')||'null');if(Array.isArray(s)&&s.length){comps=s.map(o=>mk(o.t,o.n,o.p,o.on));return true;}}catch(e){}return false;}
+const PRE={
+ led:{m:'Exemplo: LED com resistor de 470 Ω numa bateria de 9 V. Tente trocar o resistor, ou tirá-lo.',
+  s:[['bat',[1,2],[1,3],{V:9}],['wire',[1,2],[1,1]],['res',[1,1],[2,1],{R:470}],['wire',[2,1],[4,1]],['led',[4,1],[4,2],{color:'vermelho'}],['wire',[4,2],[4,3]],['wire',[4,3],[1,3]]]},
+ npn:{m:'Exemplo: transistor com botão. Com a ferramenta Mexer, toque na chave para mandar corrente para a base.',
+  s:[['bat',[1,3],[1,4],{V:9}],['wire',[1,3],[1,1]],['wire',[1,1],[5,1]],['res',[5,1],[5,2],{R:470}],['led',[5,2],[5,3],{color:'verde'}],['npn',[5,3],[4,4],[5,5]],['wire',[5,5],[1,5]],['wire',[1,4],[1,5]],['sw',[2,1],[2,2]],['wire',[2,2],[2,4]],['res',[2,4],[3,4],{R:10000}],['wire',[3,4],[4,4]]]},
+ cap:{m:'Exemplo: ligue a chave da esquerda para encher o capacitor. Depois desligue essa e ligue a da direita: o LED acende só com a carga guardada.',
+  s:[['bat',[1,2],[1,3],{V:9}],['wire',[1,2],[1,1]],['res',[1,1],[2,1],{R:1000}],['sw',[2,1],[3,1]],['cap',[3,1],[3,2],{uF:1000,rate:16}],['wire',[3,2],[3,3]],['wire',[3,3],[1,3]],['sw',[3,1],[4,1]],['res',[4,1],[5,1],{R:1000}],['led',[5,1],[5,2],{color:'vermelho'}],['wire',[5,2],[5,3]],['wire',[5,3],[3,3]]]},
+ curto:{m:'Exemplo: um fio ligando o + direto no −. Toque na bateria para ver a corrente, e espere.',
+  s:[['bat',[2,2],[2,3],{V:9}],['wire',[2,2],[3,2]],['wire',[3,2],[3,3]],['wire',[3,3],[2,3]]]}
+};
+function loadPreset(k){const pr=PRE[k];if(!pr)return;comps=[];Vn={};selC=null;probe=null;pend=[];mm.r=mm.b=null;mm.next='r';
+ pr.s.forEach(s=>{const t=s[0];if(t==='wire')addWire(N(...s[1]),N(...s[2]));else if(t==='npn')comps.push(mk('npn',[N(...s[1]),N(...s[2]),N(...s[3])]));else comps.push(mk(t,[N(...s[1]),N(...s[2])],s[3]));});
+ save();setTool('sel');renderInsp();log(pr.m);}
+$('#s-preset').onchange=e=>{loadPreset(e.target.value);e.target.value='';};
+$('#s-clear').onclick=()=>{comps=[];Vn={};selC=null;probe=null;pend=[];mm.r=mm.b=null;mm.next='r';save();drawAll();renderInsp();log('Placa limpa.');};
+
+/* ----- multímetro ----- */
+const MMTIP={
+ V:'Tensão: encoste uma ponta de cada lado do que quer medir, em paralelo. O multímetro não atrapalha o circuito.',
+ A:'Corrente: o multímetro precisa ficar no caminho da corrente, em série. Tire um fio e encoste uma ponta em cada lado do buraco que ficou. Em muitos multímetros de verdade, a ponta vermelha também muda de entrada para medir corrente.',
+ Ω:'Resistência: só com o circuito desligado. Tire a bateria e encoste as pontas nas duas pernas da peça.'
+};
+const markMM=seg('#s-mm-mode',[{label:'V ⎓ tensão',v:'V'},{label:'A ⎓ corrente',v:'A'},{label:'Ω resistência',v:'Ω'}],v=>{mm.mode=v;mm.stress=0;markMM(v);updateMeter();});
+markMM('V');
+$('#s-mm-off').onclick=()=>{mm.r=mm.b=null;mm.next='r';mm.show=false;if(tool==='mm')setTool('sel');else{drawAll();updateMeter();}};
+$('#s-mm-fuse').onclick=()=>{mm.fuse=true;mm.stress=0;log('Fusível do multímetro trocado.');updateMeter();};
+function ohms(){
+ const par={},find=x=>{if(par[x]===undefined)par[x]=x;return par[x]===x?x:(par[x]=find(par[x]));},uni=(a,b)=>{par[find(a)]=find(b);};
+ const act=comps.filter(c=>!c.burned);
+ act.forEach(c=>{if(c.type==='sw'&&!c.on)return;for(let i=1;i<c.n.length;i++)uni(c.n[0],c.n[i]);});
+ const nets=[find(mm.r),find(mm.b)];
+ if(act.some(c=>c.type==='bat'&&nets.includes(find(c.n[0]))))return {live:true};
+ const nodes=new Set([mm.r]);act.forEach(c=>c.n.forEach(x=>nodes.add(x)));nodes.delete(mm.b);
+ const list=[...nodes],idx=new Map(list.map((x,i)=>[x,i])),n=list.length;idx.set(mm.b,-1);
+ const G=[];for(let i=0;i<n;i++){G.push(new Float64Array(n));G[i][i]=1e-10;}const B=new Float64Array(n);
+ const aG=(a,b,g)=>{const i=idx.get(a),j=idx.get(b);if(i>=0)G[i][i]+=g;if(j>=0)G[j][j]+=g;if(i>=0&&j>=0){G[i][j]-=g;G[j][i]-=g;}};
+ act.forEach(c=>{if(c.type==='wire'||(c.type==='sw'&&c.on))aG(c.n[0],c.n[1],1/RW);else if(c.type==='res')aG(c.n[0],c.n[1],1/c.p.R);});
+ B[idx.get(mm.r)]=1;const x=solve(G,B);return {R:x?x[idx.get(mm.r)]:Infinity};
+}
+const num=(v,d)=>v.toFixed(d).replace('.',',');
+function updateMeter(){
+ const box=$('#s-mm'),show=tool==='mm'||mm.r!==null||mm.b!==null||mm.show;
+ box.hidden=!show;if(!show)return;
+ $('#s-mm-tip').textContent=MMTIP[mm.mode];
+ $('#s-mm-fuse').hidden=mm.fuse||mm.mode!=='A';
+ const val=$('#s-mm-val'),unit=$('#s-mm-unit'),st=$('#s-mm-status');
+ const set=(v,u,cls,msg)=>{val.textContent=v;unit.textContent=u;st.className='status '+(cls||'');st.textContent=msg;st.hidden=!msg;};
+ if(mm.r===null||mm.b===null)return set('- - -','','',mm.r===null&&mm.b===null?(tool==='mm'?'Toque na placa para encostar as pontas.':'Escolha a ferramenta Multímetro e toque na placa para encostar as pontas.'):'Falta encostar a outra ponta.');
+ if(mm.mode==='V'){const v=mm.r===mm.b?0:mm.V,a=Math.abs(v);
+  const txt=(v<-0.0005?'-':'')+num(a,a>=100?1:2);
+  if(a<0.005)return set(txt,'V','','0 V entre as pontas: elas estão no mesmo trecho de fio, ou não há tensão aqui. Para ver a tensão de uma peça, encoste uma ponta de cada lado dela.');
+  if(v<0)return set(txt,'V','warn','O sinal de menos só quer dizer que as pontas estão invertidas: a preta está no lado mais positivo. Não estraga nada.');
+  return set(txt,'V','ok','Essa é a diferença de tensão entre a ponta vermelha e a preta.');}
+ if(mm.mode==='A'){
+  if(!mm.fuse)return set('0,00','mA','bad','Fusível queimado: o multímetro mostra zero, mesmo com corrente de verdade passando. Isso engana muita gente na bancada real. Troque o fusível e meça em série.');
+  const I=mm.r===mm.b?0:mm.I,a=Math.abs(I),sg=I<-1e-7?'-':'';
+  const [t,u]=a<1e-3?[sg+Math.round(a*1e6),'µA']:a<1?[sg+num(a*1e3,a<0.01?2:1),'mA']:[sg+num(a,2),'A'];
+  if(a<1e-6)return set('0,00','mA','','Nada passando pelo multímetro. Para medir corrente, ele precisa fazer parte do caminho: tire um fio e coloque uma ponta em cada lado do buraco que ficou.');
+  if(a>0.1)return set(t,u,'warn','Corrente alta passando pelo multímetro. Se as pontas estão em paralelo com a bateria ou com uma peça, o fusível vai queimar.');
+  return set(t,u,'ok',(I<0?'O sinal de menos quer dizer que a corrente entra pela ponta preta. ':'')+'Em série: toda a corrente desse trecho está passando por dentro do multímetro.');}
+ if(mm.r===mm.b)return set('0,0','Ω','ok','As duas pontas estão no mesmo ponto.');
+ const o=ohms();
+ if(o.live)return set('Err','','bad','Circuito ligado! Resistência só se mede sem alimentação: tire a bateria, ou desligue a chave que a liga ao circuito. Com tensão, a leitura sai errada e o aparelho real pode até ser danificado.');
+ const R=o.R;
+ if(!(R<40e6))return set('OL','','','OL quer dizer fora da escala: não há caminho entre as pontas, ou a resistência é enorme. LEDs, diodos, capacitores e transistores não entram nessa medida.');
+ const [t,u]=R<1000?[num(R,1),'Ω']:R<1e6?[num(R/1000,2),'kΩ']:[num(R/1e6,2),'MΩ'];
+ return set(t,u,'ok',(R<50?'Continuidade: o caminho entre as pontas está fechado. Muitos multímetros apitam aqui. ':'')+'Se a peça ainda está ligada a outras, a leitura inclui os caminhos em paralelo. Para medir só ela, solte uma das pernas.');
+}
+
+if(!load())loadPreset('led');
+setTool('sel');renderInsp();
+let fc=0;
+function loop(){
+ if(!$('#p-sbx').hidden&&comps.length){
+  for(let i=0;i<16;i++)step();
+  if(dirty){dirty=false;drawAll();renderInsp();save();}
+  visuals();if(++fc%8===0){liveInsp();updateMeter();}
+ }
+ requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
