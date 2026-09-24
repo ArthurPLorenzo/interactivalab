@@ -1,6 +1,6 @@
 // Um passo de simulação (DT = 1 ms): análise nodal + Newton-Raphson, depois as regras de queima.
 // Fios = 0,01 Ω; bateria = fonte Norton com 0,2 Ω; capacitor por Euler implícito.
-import {VT,GMIN,RINT,RW,DT,RMM,dpar,lexp,npnEval} from './models.js';
+import {VT,GMIN,RINT,RW,DT,RMM,RPIN,VPIN,dpar,lexp,npnEval,motorBranch} from './models.js';
 import {solve} from './solver.js';
 import {groundNode,mmOn} from './circuit.js';
 import {fuseRule,partRules} from './burn.js';
@@ -19,6 +19,8 @@ export function step(S,log){
    if(c.type==='wire'||(c.type==='sw'&&c.on))aG(a,b,1/RW);
    else if(c.type==='res')aG(a,b,1/c.p.R);
    else if(c.type==='bat'){aG(a,b,1/RINT);aI(a,c.p.V/RINT);aI(b,-c.p.V/RINT);}
+   else if(c.type==='pin'){const V=c.on?VPIN:0;aG(a,b,1/RPIN);aI(a,V/RPIN);aI(b,-V/RPIN);}
+   else if(c.type==='mot'){const {G,I0}=motorBranch(c);aG(a,b,G);aI(a,-I0);aI(b,I0);}
    else if(c.type==='cap'){const g=c.p.uF*1e-6/DT;aG(a,b,g);aI(a,g*c.vPrev);aI(b,-g*c.vPrev);}
    else if(c.type==='led'||c.type==='dio'){const d=dpar(c),vd=vo(a)-vo(b),[e,de]=lexp(vd/(d.n*VT),d.xm),I=d.Is*(e-1),g=d.Is*de/(d.n*VT)+1e-12,Ieq=I-g*vd;aG(a,b,g);aI(a,-Ieq);aI(b,Ieq);}
    else if(c.type==='npn'){const nd=c.n,vs=nd.map(vo),m=npnEval(vs[0],vs[1],vs[2]),pIe=m.pIc.map((v,k)=>-(v+m.pIb[k]));

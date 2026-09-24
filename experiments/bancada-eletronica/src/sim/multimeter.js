@@ -1,5 +1,5 @@
 // Multímetro virtual: medida de resistência e o que aparece no visor (sem tocar no DOM).
-import {RW} from './models.js';
+import {RW,MOTOR} from './models.js';
 import {solve} from './solver.js';
 import {num} from '../format.js';
 
@@ -9,12 +9,12 @@ export function ohms(S){const mm=S.mm;
  const act=S.comps.filter(c=>!c.burned);
  act.forEach(c=>{if(c.type==='sw'&&!c.on)return;for(let i=1;i<c.n.length;i++)uni(c.n[0],c.n[i]);});
  const nets=[find(mm.r),find(mm.b)];
- if(act.some(c=>c.type==='bat'&&nets.includes(find(c.n[0]))))return {live:true};
+ if(act.some(c=>(c.type==='bat'||c.type==='pin')&&nets.includes(find(c.n[0]))))return {live:true};
  const nodes=new Set([mm.r]);act.forEach(c=>c.n.forEach(x=>nodes.add(x)));nodes.delete(mm.b);
  const list=[...nodes],idx=new Map(list.map((x,i)=>[x,i])),n=list.length;idx.set(mm.b,-1);
  const G=[];for(let i=0;i<n;i++){G.push(new Float64Array(n));G[i][i]=1e-10;}const B=new Float64Array(n);
  const aG=(a,b,g)=>{const i=idx.get(a),j=idx.get(b);if(i>=0)G[i][i]+=g;if(j>=0)G[j][j]+=g;if(i>=0&&j>=0){G[i][j]-=g;G[j][i]-=g;}};
- act.forEach(c=>{if(c.type==='wire'||(c.type==='sw'&&c.on))aG(c.n[0],c.n[1],1/RW);else if(c.type==='res')aG(c.n[0],c.n[1],1/c.p.R);});
+ act.forEach(c=>{if(c.type==='wire'||(c.type==='sw'&&c.on))aG(c.n[0],c.n[1],1/RW);else if(c.type==='res')aG(c.n[0],c.n[1],1/c.p.R);else if(c.type==='mot')aG(c.n[0],c.n[1],1/MOTOR.R);});
  B[idx.get(mm.r)]=1;const x=solve(G,B);return {R:x?x[idx.get(mm.r)]:Infinity};
 }
 

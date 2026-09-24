@@ -9,7 +9,7 @@ import {tapComp,tapNode} from './tools.js';
 
 const NS='http://www.w3.org/2000/svg';
 const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
-const HW={wire:0,res:18,bat:5,cap:5,led:10,dio:10,sw:14};
+const HW={wire:0,res:18,bat:5,cap:5,led:10,dio:10,sw:14,pin:17,mot:15};
 let gP,gF,gL,gN;
 
 export function initBoard(){const svg=$('#s-board');gP=el('g',{},svg);gF=el('g',{},svg);gL=el('g',{},svg);gN=el('g',{},svg);}
@@ -34,14 +34,20 @@ function draw2(c,off){
   if(c.type==='led')c._glow=el('circle',{cx:m,cy:0,r:22,fill:col,opacity:0,filter:'url(#sblur)','pointer-events':'none'},g);
   el('polygon',{points:`${m-10},-11 ${m-10},11 ${m+9},0`,fill:c.burned?'#4a4a4a':col,stroke:Sk,'stroke-width':1},g);
   el('line',{x1:m+10,y1:-11,x2:m+10,y2:11,stroke:Sk,'stroke-width':3},g);}
+ if(c.type==='pin'){el('rect',{x:m-17,y:-11,width:34,height:22,rx:3,fill:'#00878f',stroke:Sk,'stroke-width':1},g);
+  el('circle',{cx:m+10,cy:-5,r:3,fill:c.on&&!c.burned?'#9dff6b':'#1d3b3d'},g);}
+ if(c.type==='mot'){el('circle',{cx:m,cy:0,r:15,fill:'#2b2f2c',stroke:Sk,'stroke-width':1.5},g);
+  c._rotor=el('g',{},g);el('line',{x1:m-11,y1:0,x2:m+11,y2:0,stroke:'#e0b43a','stroke-width':3,'stroke-linecap':'round'},c._rotor);
+  el('circle',{cx:m,cy:0,r:3,fill:Sk},c._rotor);c._rotorM=m;}
  if(c.type==='sw'){el('circle',{cx:m-14,cy:0,r:4,fill:Sk},g);el('circle',{cx:m+14,cy:0,r:4,fill:Sk},g);
   el('line',{x1:m-14,y1:0,x2:c.on?m+14:m+9,y2:c.on?0:-15,stroke:Sk,'stroke-width':3.5,'stroke-linecap':'round'},g);}
  outer.addEventListener('click',()=>tapComp(c));
  const mx=(x1+x2)/2,my=(y1+y2)/2,hz=Math.abs(x2-x1)>=Math.abs(y2-y1);
- const txt=c.type==='bat'?fVn(c.p.V):c.type==='res'?fmtR(c.p.R):c.type==='cap'?c.p.uF+' µF':'';
+ const txt=c.type==='pin'?(c.on?'HIGH':'LOW'):c.type==='mot'?'M':c.type==='bat'?fVn(c.p.V):c.type==='res'?fmtR(c.p.R):c.type==='cap'?c.p.uF+' µF':'';
  if(txt){hz?lab(mx,my-16,txt):lab(mx+14,my+4,txt,'start');}
- if(c.type==='bat'||c.type==='cap'){const t=Math.max(0.1,0.5-(h+9)/L),qx=x1+(x2-x1)*t,qy=y1+(y2-y1)*t;hz?lab(qx,qy+20,'+'):lab(qx-12,qy+4,'+');}
+ if(c.type==='bat'||c.type==='cap'||c.type==='pin'){const t=Math.max(0.1,0.5-(h+9)/L),qx=x1+(x2-x1)*t,qy=y1+(y2-y1)*t;hz?lab(qx,qy+20,'+'):lab(qx-12,qy+4,'+');}
  if(c.burned)el('text',{x:mx+4,y:my-4,'font-size':20},gL).textContent=c.type==='cap'?'💥':'💨';
+ if(c.type==='mot')c._spark=el('text',{x:mx+10,y:my-12,'font-size':20,opacity:0},gL);
  c._flow=[flowEl(x1,y1,x2,y2)];
 }
 function drawNPN(c){
@@ -73,7 +79,7 @@ function drawNodes(){
 }
 export function drawAll(){[gP,gF,gL,gN].forEach(g=>g.replaceChildren());
  const grp={};S.comps.forEach(c=>{if(c.type!=='npn')(grp[pairKey(c)]=grp[pairKey(c)]||[]).push(c);});
- S.comps.forEach(c=>{if(c.type==='npn')return drawNPN(c);const g=grp[pairKey(c)],i=g.indexOf(c);draw2(c,g.length>1?(i-(g.length-1)/2)*24:0);});
+ S.comps.forEach(c=>{if(c.type==='npn')return drawNPN(c);const g=grp[pairKey(c)],i=g.indexOf(c);draw2(c,g.length>1?(i-(g.length-1)/2)*(g.some(x=>x.type==='mot'||x.type==='pin')?38:24):0);});
  drawNodes();}
 function setFlow(f,I){const a=Math.abs(I);
  if(!(a>=2e-5)||!isFinite(a)){if(f.on){f.e.style.opacity=0;f.on=false;}return;}
@@ -83,6 +89,8 @@ function setFlow(f,I){const a=Math.abs(I);
 // Atualiza só o que muda a cada quadro: setas de corrente, brilho do LED, bateria quente.
 export function visuals(){for(const c of S.comps){if(!c._flow)continue;
  if(c.type==='npn'){setFlow(c._flow[0],c.Ic);setFlow(c._flow[1],c.Ib);setFlow(c._flow[2],c.Ic+c.Ib);}
- else setFlow(c._flow[0],c.type==='bat'?-c.I:c.I);
+ else setFlow(c._flow[0],c.type==='bat'||c.type==='pin'?-c.I:c.I);
+ if(c._rotor){const deg=(c.ang*0.02*180/Math.PI)%360;c._rotor.setAttribute('transform',`rotate(${deg.toFixed(1)} ${c._rotorM} 0)`);}
+ if(c._spark){c._spark.textContent='⚡';c._spark.setAttribute('opacity',c.spikeT>5?1:0);}
  if(c._glow)c._glow.setAttribute('opacity',c.burned?0:Math.min(1,Math.sqrt(Math.max(0,c.I)/0.02)).toFixed(2));
  if(c.type==='bat'&&c._g)c._g.classList.toggle('hot',!c.burned&&Math.abs(c.I)>3);}}

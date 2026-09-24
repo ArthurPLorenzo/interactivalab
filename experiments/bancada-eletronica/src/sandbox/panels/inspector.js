@@ -1,13 +1,13 @@
 // Painel da peça selecionada: leituras, aviso didático e botões de editar.
 import {S} from '../state.js';
 import {$,makeSel,mkBtn} from '../../ui.js';
-import {LEDP} from '../../sim/models.js';
-import {bypassed} from '../../sim/circuit.js';
+import {LEDP,MOTOR,rpm} from '../../sim/models.js';
+import {bypassed,flybackFor} from '../../sim/circuit.js';
 import {fmtR,fVn,fV,fA,fW} from '../../format.js';
 import {drawAll} from '../draw.js';
 import {OPT,save} from '../tools.js';
 
-const NAME={wire:'Fio',bat:'Bateria',res:'Resistor',led:'LED',dio:'Diodo',cap:'Capacitor',npn:'Transistor NPN',sw:'Chave'};
+const NAME={wire:'Fio',bat:'Bateria',res:'Resistor',led:'LED',dio:'Diodo',cap:'Capacitor',npn:'Transistor NPN',sw:'Chave',pin:'Pino do Arduino',mot:'Motor DC'};
 function titleOf(c){return c.type==='bat'?`Bateria de ${fVn(c.p.V)}`:c.type==='res'?`Resistor de ${fmtR(c.p.R)}`:c.type==='led'?`LED ${c.p.color}`:c.type==='cap'?`Capacitor de ${c.p.uF} µF`:NAME[c.type];}
 function readings(c){const P2=Math.abs(c.I*c.v);
  switch(c.type){
@@ -15,12 +15,14 @@ function readings(c){const P2=Math.abs(c.I*c.v);
   case 'res':return [['Tensão',fV(Math.abs(c.v))],['Corrente',fA(c.I)],['Calor',fW(P2)]];
   case 'led':return [['Tensão',fV(c.v)],['Corrente',fA(c.I)],['Limite','20 mA']];
   case 'cap':return [['Guardando',fV(c.v)],['Corrente',fA(c.I)],['Aguenta',fVn(c.p.rate)]];
+  case 'pin':return [['Estado',c.on?'HIGH':'LOW'],['No pino',fV(c.v)],['Corrente',fA(c.I)]];
+  case 'mot':return [['Corrente',fA(c.I)],['Giro',Math.round(Math.abs(rpm(c.w))).toLocaleString('pt-BR')+' rpm'],['Pico ao desligar',c.lastSpike?Math.round(c.lastSpike)+' V':'—']];
   case 'npn':return [['Na base',fA(c.Ib)],['No coletor',fA(c.Ic)],['Multiplicou',c.Ib>1e-7?'×'+Math.round(c.Ic/c.Ib):'—']];
   default:return [['Tensão',fV(c.v)],['Corrente',fA(c.I)],['Potência',fW(P2)]];}}
 function statusOf(c){
  if(c.burned)return['bad',c.why+' Uma peça queimada abre o circuito. Corrija a montagem e troque a peça.'];
  const I=c.I,a=Math.abs(I);
- if(c.type!=='bat'&&c.type!=='sw'&&bypassed(c,S.comps))return['warn',`Tem um fio ligado direto entre as duas pontas desta peça. A corrente pega esse atalho e passa quase nada por aqui, como se a peça nem estivesse no circuito. Tire o fio com a ferramenta Apagar.`];
+ if(c.type!=='bat'&&c.type!=='sw'&&c.type!=='pin'&&bypassed(c,S.comps))return['warn',`Tem um fio ligado direto entre as duas pontas desta peça. A corrente pega esse atalho e passa quase nada por aqui, como se a peça nem estivesse no circuito. Tire o fio com a ferramenta Apagar.`];
  switch(c.type){
   case 'led':{const vf=LEDP[c.p.color].vf;
    if(c.v<-0.5)return['warn','Está ao contrário: o LED só conduz com a perna longa (+) virada para o lado positivo.'];
@@ -35,7 +37,19 @@ function statusOf(c){
   case 'cap':if(c.v<-0.5)return['warn','Tensão invertida: capacitor eletrolítico ligado ao contrário pode estourar.'];
    if(c.v>0.8*c.p.rate)return['warn',`Perto do limite: ${fV(c.v)} de ${fVn(c.p.rate)}.`];
    return['ok',a>1e-4?(I>0?'Enchendo agora.':'Devolvendo a carga agora.'):c.v>0.1?'Parado, com carga guardada. Cheio, ele não deixa corrente contínua passar.':'Vazio.'];
-  case 'dio':return I>1e-4?['ok','Conduzindo: deixa a corrente passar e consome uns 0,7 V.']:['','Bloqueando: a corrente não passa nesse sentido, ou falta tensão (precisa de uns 0,7 V).'];
+  case 'dio':{const m=S.comps.find(x=>x.type==='mot'&&!x.burned&&flybackFor(x,S.comps,Math.abs(x.I)>1e-4?Math.sign(x.I):1)===c);
+   if(m)return I>1e-4?['ok','Diodo de proteção trabalhando: o motor acabou de ser desligado, e a corrente dele está dando a volta por aqui em vez de virar um pico de tensão.']:
+    ['ok','Diodo de proteção (flyback): está em paralelo com o motor, ao contrário. Com o motor ligado ele fica bloqueando. Quando o motor é desligado, a corrente da bobina dá a volta por ele, e o pico de tensão não acontece.'];}
+   return I>1e-4?['ok','Conduzindo: deixa a corrente passar e consome uns 0,7 V.']:['','Bloqueando: a corrente não passa nesse sentido, ou falta tensão (precisa de uns 0,7 V).'];
+  case 'pin':if(!c.on)return['','LOW: o pino fica em 0 V e não empurra corrente. Com a ferramenta Mexer, toque nele para ligar.'];
+   if(a>0.02)return['warn',`HIGH, mas saindo ${fA(I)}: acima dos 20 mA recomendados, e o pino queima em 40 mA. Aumente o resistor, ou use um transistor.`];
+   return['ok',a>1e-5?`HIGH: o pino dá 5 V e está fornecendo ${fA(I)}, dentro do recomendado (até 20 mA).`:'HIGH: o pino dá 5 V, mas nada está puxando corrente dele. Falta fechar o caminho até o GND.'];
+  case 'mot':{const r=Math.round(Math.abs(rpm(c.w))).toLocaleString('pt-BR');
+   if(c.spikeT>0)return['bad',`Ao ser desligado, o motor deu um pico de uns ${Math.round(c.lastSpike)} V. A bobina não deixa a corrente parar de repente. Um diodo em paralelo com o motor, ao contrário, dá um caminho para essa corrente.`];
+   if(a<1e-3&&Math.abs(c.w)<1)return['','Parado: sem corrente, o motor não gira.'];
+   if(a<1e-3)return['',`Sem corrente, mas ainda girando por inércia (${r} rpm). Ele vai parando aos poucos.`];
+   if(Math.abs(MOTOR.k*c.w)<0.5*Math.abs(c.v))return['warn',`Partindo: puxa ${fA(I)} porque ainda gira devagar. Quanto mais rápido gira, mais ele gera uma tensão contrária e menos corrente puxa.`];
+   return['ok',`Girando a ${r} rpm, puxando ${fA(I)}. Mais corrente, mais força no eixo.`];}
   case 'sw':return c.on?['ok','Ligada: o caminho está fechado.']:['','Desligada: o caminho está aberto e nada passa por aqui.'];
   case 'npn':if(c.Ib<1e-6)return['','Fechado: sem corrente na base, nada passa do coletor para o emissor.'];
    if(c.Vce<0.3)return['ok','Totalmente aberto: a correntinha da base liberou tudo o que o resto do circuito permite.'];
@@ -53,7 +67,8 @@ export function renderInsp(){const box=$('#s-insp'),c=S.selC;box.replaceChildren
  if(c.type==='led')ed.append(makeSel('Cor',OPT.led,c.p.color,v=>{c.p.color=v;upd();}));
  if(c.type==='cap')ed.append(makeSel('Tamanho',OPT.cap,c.p.uF,v=>{c.p.uF=v;upd();}),makeSel('Aguenta até',OPT.rate,c.p.rate,v=>{c.p.rate=v;upd();}));
  if(c.type==='sw')ed.append(mkBtn(c.on?'Desligar':'Ligar','',()=>{c.on=!c.on;upd();}));
- if(c.burned)ed.append(mkBtn('Trocar a peça','',()=>{c.burned=false;c.why='';c.stress=0;c.vPrev=0;c.warned=false;upd();}));
+ if(c.type==='pin')ed.append(mkBtn(c.on?'Mudar para LOW':'Mudar para HIGH','',()=>{c.on=!c.on;upd();}));
+ if(c.burned)ed.append(mkBtn('Trocar a peça','',()=>{c.burned=false;c.why='';c.stress=0;c.vPrev=0;c.warned=false;c.iL=0;c.w=0;c.spikeT=0;upd();}));
  ed.append(mkBtn('Tirar da placa','ghost',()=>{S.comps=S.comps.filter(x=>x!==c);S.selC=null;upd();}));
  box.append(h,m,st,ed);liveInsp();}
 export function liveInsp(){

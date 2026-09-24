@@ -10,3 +10,18 @@ export function npnEval(Vc,Vb,Ve){const xm=Math.log(1/IST),[ef,def]=lexp((Vb-Ve)
  const Ic=IST*(ef-er)-(IST/BR)*(er-1),Ib=(IST/BF)*(ef-1)+(IST/BR)*(er-1);
  const gF=IST*def/VT+1e-12,gR=IST*der/VT+1e-12,cbe=gF,cbc=-gR-gR/BR,bbe=gF/BF,bbc=gR/BR;
  return {Ic,Ib,pIc:[-cbc,cbe+cbc,-cbe],pIb:[-bbc,bbe+bbc,-bbe]};}
+
+// Pino digital de saída do Arduino (ATmega328P): 5 V em HIGH, 0 V em LOW, ~25 Ω de resistência de saída.
+// Limite absoluto: 40 mA por pino (o recomendado é até 20 mA).
+export const RPIN=25,VPIN=5,IPIN_MAX=0.04;
+
+// Motor DC pequeno de 5 V: enrolamento (R, L), constante do motor k (V por rad/s, e também N·m por A),
+// atrito viscoso b e inércia J do eixo. Cs é a capacitância do próprio enrolamento, que recebe
+// a energia da bobina quando a corrente é cortada de repente.
+export const MOTOR={R:8,L:0.002,k:0.0045,b:2.5e-7,J:1e-6,Cs:1e-9};
+export const VCE_MAX=40; // tensão máxima entre coletor e emissor de um transistor pequeno
+
+// Motor como um ramo único (Euler implícito na bobina, força contraeletromotriz do passo anterior):
+// corrente de a para b = G·(va − vb) + I0.
+export function motorBranch(c){const Leq=MOTOR.L/DT,G=1/(MOTOR.R+Leq);return {G,I0:G*(Leq*c.iL-MOTOR.k*c.w)};}
+export const rpm=w=>w*60/(2*Math.PI);

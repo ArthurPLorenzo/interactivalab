@@ -19,6 +19,8 @@ const TOOLS=[
  {id:'cap',label:'Capacitor',taps:['Toque onde vai o + do capacitor.','Agora o −, num ponto vizinho.']},
  {id:'npn',label:'Transistor',taps:['Toque onde vai o coletor (C).','Agora a base (B), vizinha do coletor.','Agora o emissor (E), vizinho da base.']},
  {id:'sw',label:'Chave',taps:['Toque numa ponta da chave.','Agora na outra, num ponto vizinho.']},
+ {id:'pin',label:'Arduino',taps:['Toque onde fica o pino de saída do Arduino (D9).','Agora o GND do Arduino, num ponto vizinho.']},
+ {id:'mot',label:'Motor',taps:['Toque numa ponta do motor.','Agora na outra, num ponto vizinho.']},
  {id:'mm',label:'Multímetro'},
  {id:'del',label:'Apagar'}
 ];
@@ -32,6 +34,8 @@ const TIP={
  cap:'Guarda carga. O + é o primeiro ponto que você toca. Acima da tensão máxima, ou invertido, estoura.',
  npn:'Uma correntinha entrando na base libera uma corrente bem maior do coletor para o emissor. Base sempre com resistor.',
  sw:'Abre ou fecha o caminho. Com a ferramenta Mexer, toque nela para ligar e desligar.',
+ pin:'Um pino de saída do Arduino: em HIGH dá 5 V, em LOW dá 0 V. Com a ferramenta Mexer, toque nele para trocar. Aguenta no máximo 40 mA: bom para um LED, fraco para um motor.',
+ mot:'Gira quando passa corrente. Na partida puxa muita corrente. Se for desligado de repente, dá um pico de tensão: proteja com um diodo em paralelo.',
  mm:'Encoste as pontas nos pontos da placa. A leitura aparece no painel do multímetro, onde você escolhe tensão (V), corrente (A) ou resistência (Ω).',
  del:'Toque na peça que quer tirar da placa.'
 };
@@ -72,7 +76,7 @@ export function tapNode(k){const mm=S.mm;
 export function tapComp(c){
  if(S.tool==='del'){S.comps=S.comps.filter(x=>x!==c);if(S.selC===c)S.selC=null;save();drawAll();renderInsp();return;}
  if(S.tool!=='sel')return;
- if(c.type==='sw'){c.on=!c.on;save();}
+ if(c.type==='sw'||c.type==='pin'){c.on=!c.on;save();}
  S.selC=c;S.probe=null;drawAll();renderInsp();}
 
 export function save(){try{localStorage.setItem('bancada-sbx',JSON.stringify(S.comps.map(c=>({t:c.type,n:c.n,p:c.p,on:c.on}))));}catch(e){}}

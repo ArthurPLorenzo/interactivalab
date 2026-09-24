@@ -72,6 +72,27 @@
         <p class="care"><strong>Cuidado:</strong> a base sempre leva resistor.</p>
         <button class="link" data-go="p-tr">Testar na bancada</button>
       </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><path class="sym" d="M5 22H28M62 22H85M28 8H62V36H28Z M52 14V18"/></svg>
+        <h3>Pino do Arduino</h3>
+        <p>Uma saída que o programa liga e desliga. Em HIGH o pino dá 5 V; em LOW, 0 V. É ótimo para acender um LED com resistor.</p>
+        <p class="care"><strong>Cuidado:</strong> cada pino aguenta no máximo 40 mA (o recomendado é até 20 mA). Um motor puxa bem mais que isso: o pino só comanda um transistor, e o transistor liga o motor.</p>
+        <button class="link" data-go="p-sbx">Testar no Sandbox</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><circle class="sym" cx="45" cy="22" r="16"/><path class="sym" d="M5 22H29M61 22H85M38 29V15L45 23L52 15V29"/></svg>
+        <h3>Motor DC</h3>
+        <p>Corrente passando pela bobina faz o eixo girar. Mais corrente, mais força. Na partida ele puxa muita corrente; girando, puxa pouca, porque passa a gerar uma tensão contrária.</p>
+        <p class="care"><strong>Cuidado:</strong> a bobina não deixa a corrente parar de repente. Desligado de uma vez, o motor dá um pico de tensão de dezenas ou centenas de volts.</p>
+        <button class="link" data-go="p-sbx">Testar no Sandbox</button>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 90 44"><circle class="sym" cx="30" cy="22" r="9"/><path class="sym" d="M12 5H74M12 39H74 M30 5V13M30 31V39 M26 26V18L30 23L34 18V26 M60 5V16M60 28V39 M53 28H67L60 17Z M53 16H67"/><text x="4" y="9" font-size="10" fill="currentColor">+</text><text x="4" y="42" font-size="10" fill="currentColor">−</text></svg>
+        <h3>Diodo de proteção (flyback)</h3>
+        <p>Um diodo comum, em paralelo com o motor e ao contrário: a faixa do diodo vai no lado do +. Com o motor ligado, ele fica bloqueando e nem aparece. Quando o motor é desligado, a corrente da bobina dá a volta por ele e morre em poucos milésimos de segundo, em vez de virar um pico.</p>
+        <p class="care"><strong>Cuidado:</strong> sem ele, o pico queima o transistor que liga o motor. Com ele invertido, vira um curto.</p>
+        <button class="link" data-go="p-sbx">Testar no Sandbox</button>
+      </div>
     </div>
   </section>
 
@@ -256,6 +277,8 @@
               <option value="led">LED com resistor</option>
               <option value="npn">Transistor com botão</option>
               <option value="cap">Capacitor carrega e descarrega</option>
+              <option value="motor">Arduino e motor, sem proteção</option>
+              <option value="flyback">Arduino e motor, com diodo de proteção</option>
               <option value="curto">Curto-circuito</option>
             </select>
           </label>
