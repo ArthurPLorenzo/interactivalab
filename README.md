@@ -18,8 +18,8 @@ Laboratório de experimentos interativos de arte e música no browser.
 ## Rodar localmente
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 Abre `http://localhost:5173`.
@@ -27,8 +27,8 @@ Abre `http://localhost:5173`.
 ## Build
 
 ```bash
-npm run build   # gera dist/
-npm run preview # serve o build
+bun run build   # gera dist/
+bun run preview # serve o build
 ```
 
 ## Estrutura
