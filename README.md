@@ -1,19 +1,24 @@
 # InteractivaLab
 
-Laboratório de experimentos interativos de arte e música no browser.
+Experimentos de física que rodam no navegador, para curiosos e estudantes do ensino médio. Cada experimento começa com uma pergunta, deixa testar à vontade e mostra os números para conferir com as fórmulas. O som aparece quando ajuda a entender um conceito, como a nota de uma corda ou o tique de um pêndulo.
 
 ## Experimentos
 
-| Experimento | Descrição |
-|---|---|
-| 🎨 [Painting → Sound](experiments/painting-sound/) | Pinte no canvas e ouça a composição gerada |
+| Área | Experimento | O que se aprende |
+|---|---|---|
+| Oscilações e ondas | [Pêndulo & Cordas](experiments/pendulum-strings/) | Período do pêndulo (T = 2π√(L/g)) e frequência de uma corda (lei de Mersenne), com metrônomo, afinador e gravidade de outros planetas |
+| Eletricidade | [Bancada de eletrônica](experiments/bancada-eletronica/) | Lei de Ohm, LED, capacitor e transistor, com simulador de circuitos e multímetro |
+| Fora do roteiro | [Jardim Zen](experiments/zen-garden/) | Nada: é só para mexer |
+
+Os próximos experimentos planejados aparecem como "Em breve" na página inicial.
 
 ## Stack
 
-- **Vite** — build e dev server
-- **Tone.js** — síntese e sequenciamento de áudio
-- **Canvas 2D** — pintura e visualização
-- Vanilla JS, sem frameworks
+- **Vite**: build e servidor de desenvolvimento (várias páginas)
+- **Tone.js**: som
+- **Canvas 2D** e SVG: simulações e desenhos
+- **Vitest**: testes da física
+- JavaScript puro, sem framework
 
 ## Rodar localmente
 
@@ -24,44 +29,33 @@ bun run dev
 
 Abre `http://localhost:5173`.
 
-## Build
+## Build e testes
 
 ```bash
-bun run build   # gera dist/
-bun run preview # serve o build
+bun run build          # gera dist/
+bun run preview        # serve o build
+bun run test           # testes da física
+bun run build:bancada  # a bancada como um único HTML autocontido, em dist-bancada/
 ```
 
 ## Estrutura
 
 ```
 interactivalab/
-├── index.html                    # Menu principal
+├── index.html                 # Página inicial
 ├── src/
-│   ├── style.css                 # Estilos globais
-│   └── main.js                   # Animação dos cards
+│   ├── lab.css                # Base visual comum (cores, fontes, controles)
+│   ├── style.css              # Estilo da página inicial
+│   └── main.js                # Registrador da mola e miniaturas animadas
 └── experiments/
-    └── painting-sound/           # Primeiro experimento
-        ├── index.html
-        ├── style.css
-        └── main.js
+    ├── pendulum-strings/      # physics.js (física pura, testada) + main.js (interface)
+    ├── bancada-eletronica/    # src/sim (simulador, testado) + src/sandbox + src/tabs
+    └── zen-garden/
 ```
 
-## Adicionar experimento
+## Adicionar um experimento
 
-1. Criar pasta `experiments/<nome>/`
-2. Adicionar `index.html`, `style.css`, `main.js`
-3. Registrar entrada no `vite.config.js` (campo `input`)
-4. Adicionar card no `index.html` do menu
-
-## Como funciona: Painting → Sound
-
-1. Usuário pinta livremente com brush aquarela
-2. Ao clicar **Tocar**, canvas é varrido em strips de 8px (esq → dir)
-3. Cada strip com tinta → média de Hue/Saturação/Brilho (HSB)
-4. Mapeamentos:
-   - **Hue** → nota pentatônica (C D E G A, oitavas 3–5)
-   - **Brilho** → oitava (escuro = grave, claro = agudo)
-   - **Saturação** → velocity (dessaturado = piano, saturado = forte)
-5. Durações atribuídas aleatoriamente (mais semínimas e colcheias)
-6. BPM fixo em 90, sintetizador PolySynth com reverb
-7. Cursor vertical varre o canvas sincronizado com a reprodução
+1. Criar a pasta `experiments/<nome>/` com `index.html`, `style.css` (importando `../../src/lab.css`) e `main.js`
+2. Deixar a física num módulo sem DOM e testá-la em `experiments/<nome>/tests/`
+3. Registrar a página em `vite.config.js` (campo `input`)
+4. Adicionar o experimento na área certa do `index.html` e, se quiser, uma miniatura em `src/main.js` (`data-preview`)

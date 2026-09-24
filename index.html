@@ -3,52 +3,123 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InteractivaLab</title>
+  <title>InteractivaLab: física para mexer e medir</title>
+  <meta name="description" content="Experimentos de física que rodam no navegador. Cada um começa com uma pergunta, deixa você testar e mostra os números para conferir com as fórmulas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">
-      <span class="logo-dot" style="background:#ff6b6b"></span>
-      <span class="logo-dot" style="background:#ffd93d"></span>
-      <span class="logo-dot" style="background:#6bcb77"></span>
-      <span class="logo-dot" style="background:#4d96ff"></span>
-    </div>
-    <h1>InteractivaLab</h1>
-    <p>laboratório de experimentos interativos de arte e música</p>
+  <header class="hero">
+    <p class="wordmark">InteractivaLab</p>
+    <h1>Mexa, meça, entenda.</h1>
+    <p class="lead">Experimentos de física que rodam no navegador. Cada um começa com uma pergunta, deixa você testar à vontade e mostra os números para conferir com as fórmulas.</p>
   </header>
 
-  <main class="experiments-grid">
-    <a href="/experiments/painting-sound/" class="card" data-color="#ff6b6b">
-      <canvas class="card-preview" width="300" height="170"></canvas>
-      <div class="card-body">
-        <div class="card-icon">🎨</div>
-        <h2 class="card-title">Painting → Sound</h2>
-        <p class="card-desc">Pinte e escute sua composição</p>
-      </div>
-    </a>
+  <figure class="record">
+    <canvas id="plotter" aria-label="Uma massa pendurada numa mola escreve o próprio movimento num papel que corre: uma onda."></canvas>
+    <figcaption>Uma massa numa mola escreve o próprio vaivém no papel. Puxe a massa para cima ou para baixo e solte.</figcaption>
+  </figure>
 
-    <a href="/experiments/zen-garden/" class="card" data-color="#b8956a">
-      <canvas class="card-preview" data-preview="zen" width="300" height="170"></canvas>
-      <div class="card-body">
-        <div class="card-icon">🪨</div>
-        <h2 class="card-title">Jardim Zen</h2>
-        <p class="card-desc">Rastele areia, mova pedras, respire</p>
+  <main class="areas">
+    <section class="area" aria-labelledby="a-osc">
+      <div class="area-head">
+        <h2 id="a-osc">Oscilações e ondas</h2>
+        <p>Por que as coisas vão e voltam, e como isso vira som?</p>
       </div>
-    </a>
+      <div class="area-body">
+        <a href="/experiments/pendulum-strings/" class="exp">
+          <canvas class="card-preview" data-preview="pendulum" width="300" height="170" aria-hidden="true"></canvas>
+          <div>
+            <h3>Pêndulo &amp; Cordas</h3>
+            <p>O que decide o ritmo de um pêndulo e a nota de uma corda. Tem metrônomo, afinador e gravidade da Lua a Júpiter.</p>
+          </div>
+        </a>
+        <div class="soon">
+          <h4>Em breve</h4>
+          <ul>
+            <li><b>Ondas que se encontram</b> Duas pedras no lago: onde as ondas se somam e onde se apagam.</li>
+            <li><b>A sirene que muda de nota</b> Por que a ambulância soa mais aguda chegando do que indo embora.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-    <a href="/experiments/pendulum-strings/" class="card" data-color="#4d96ff">
-      <canvas class="card-preview" data-preview="pendulum" width="300" height="170"></canvas>
-      <div class="card-body">
-        <div class="card-icon">🎸</div>
-        <h2 class="card-title">Pêndulo &amp; Cordas</h2>
-        <p class="card-desc">Monte, balance e dedilhe</p>
+    <section class="area" aria-labelledby="a-ele">
+      <div class="area-head">
+        <h2 id="a-ele">Eletricidade</h2>
+        <p>Para onde vai a corrente, e por que as peças queimam?</p>
       </div>
-    </a>
+      <div class="area-body">
+        <a href="/experiments/bancada-eletronica/" class="exp">
+          <canvas class="card-preview" data-preview="circuit" width="300" height="170" aria-hidden="true"></canvas>
+          <div>
+            <h3>Bancada de eletrônica</h3>
+            <p>Monte circuitos com LED, resistor, capacitor e transistor, e meça com um multímetro. Queimar peça aqui é de graça.</p>
+          </div>
+        </a>
+        <div class="soon">
+          <h4>Em breve</h4>
+          <ul>
+            <li><b>Cargas e campo elétrico</b> Por que o cabelo arrepia perto de um balão esfregado.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="area" aria-labelledby="a-mov">
+      <div class="area-head">
+        <h2 id="a-mov">Movimento e forças</h2>
+        <p>Por que as coisas caem, e por que a Lua não cai?</p>
+      </div>
+      <div class="area-body">
+        <div class="soon">
+          <h4>Em breve</h4>
+          <ul>
+            <li><b>A pena e o martelo</b> Na Terra, o martelo chega primeiro. Na Lua, os dois chegam juntos.</li>
+            <li><b>Qual ângulo joga mais longe?</b> Lance, meça o alcance e descubra o ângulo campeão.</li>
+            <li><b>Órbitas</b> Jogue uma bola rápido o bastante e ela nunca mais chega ao chão.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="area" aria-labelledby="a-luz">
+      <div class="area-head">
+        <h2 id="a-luz">Luz</h2>
+        <p>Do que a cor é feita, e por que a luz entorta?</p>
+      </div>
+      <div class="area-body">
+        <div class="soon">
+          <h4>Em breve</h4>
+          <ul>
+            <li><b>O lápis que quebra na água</b> A luz muda de direção quando troca de material.</li>
+            <li><b>Cor e frequência</b> De onde sai o arco-íris, e o que uma cor tem em comum com uma nota musical.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="area" aria-labelledby="a-free">
+      <div class="area-head">
+        <h2 id="a-free">Fora do roteiro</h2>
+        <p>Sem aula e sem pergunta. Só para mexer.</p>
+      </div>
+      <div class="area-body">
+        <a href="/experiments/zen-garden/" class="exp">
+          <canvas class="card-preview" data-preview="zen" width="300" height="170" aria-hidden="true"></canvas>
+          <div>
+            <h3>Jardim Zen</h3>
+            <p>Rastele a areia, mova as pedras e ouça o som do rastelo.</p>
+          </div>
+        </a>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
-    <p>InteractivaLab © 2026</p>
+    <p>InteractivaLab. Para quem gosta de entender como as coisas funcionam.</p>
   </footer>
 
   <script type="module" src="/src/main.js"></script>

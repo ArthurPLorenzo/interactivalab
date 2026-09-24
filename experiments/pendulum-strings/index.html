@@ -4,28 +4,123 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pêndulo &amp; Cordas — InteractivaLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <nav class="top-bar">
-    <a href="/" class="back-btn">← InteractivaLab</a>
-    <span class="experiment-title">🎸 Pêndulo &amp; Cordas</span>
-  </nav>
+  <header class="lab-bar">
+    <a href="/" class="lab-home">InteractivaLab</a>
+  </header>
 
-  <div class="workspace">
-    <div class="toolbar">
-      <span class="toolbar-label">Gravidade</span>
-      <input type="range" id="gravSlider" min="0" max="2" step="0.1" value="1" />
-      <span class="grav-val" id="gravVal">1.0×</span>
-      <div class="toolbar-spacer"></div>
-      <span class="rope-count" id="ropeCount"></span>
-      <button class="btn btn--play" id="btnPlay">▶ Play</button>
+  <main class="exp">
+    <h1>Pêndulo &amp; Cordas</h1>
+    <p class="lead">Um pêndulo marca o ritmo, uma corda esticada faz a nota. Mude o que quiser e confira o que você mede com o que as fórmulas dizem.</p>
+
+    <div class="setup">
+      <span id="planet-label">Onde está a bancada</span>
+      <div class="seg" id="planet" role="group" aria-labelledby="planet-label"></div>
+      <span class="gval" id="gval"></span>
+      <button class="btn ghost" id="sound" type="button" aria-pressed="true">Som ligado</button>
     </div>
 
-    <div class="sim-wrap">
-      <canvas id="simCanvas"></canvas>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-pend" aria-controls="pane-pend" aria-selected="true">Pêndulo</button>
+      <button role="tab" id="tab-corda" aria-controls="pane-corda" aria-selected="false">Corda que canta</button>
     </div>
-  </div>
+
+    <!-- PÊNDULO -->
+    <section class="pane" id="pane-pend" role="tabpanel" aria-labelledby="tab-pend">
+      <p class="question">Um pêndulo leva sempre o mesmo tempo para ir e voltar. Foi por isso que ele virou relógio. Esse tempo depende do comprimento, da massa da bola ou da gravidade? Teste cada um.</p>
+      <div class="lab">
+        <div class="stage">
+          <canvas id="p-canvas" aria-label="Pêndulo e o registro do ângulo ao longo do tempo"></canvas>
+        </div>
+        <div class="panel">
+          <div class="field">
+            <label for="p-L">Comprimento do fio <output id="p-L-out" for="p-L"></output></label>
+            <input type="range" id="p-L" />
+          </div>
+          <div class="field">
+            <label for="p-bob">Massa da bola <output id="p-bob-out" for="p-bob"></output></label>
+            <input type="range" id="p-bob" />
+          </div>
+          <div class="field">
+            <label for="p-angle">Ângulo de soltura <output id="p-angle-out" for="p-angle"></output></label>
+            <input type="range" id="p-angle" />
+          </div>
+          <button class="btn" id="p-run" type="button">Soltar</button>
+
+          <div class="readings">
+            <div class="measured"><small>Ida e volta, medido</small><b id="p-meas">—</b></div>
+            <div><small>Pela fórmula</small><b id="p-formula">—</b></div>
+            <div><small>Tiques por minuto</small><b id="p-bpm">—</b></div>
+          </div>
+          <div class="status" id="p-status" aria-live="polite"></div>
+
+          <details class="math">
+            <summary>A conta</summary>
+            <div id="p-math"></div>
+          </details>
+
+          <h2 class="goals-title">Desafios</h2>
+          <ul class="goals" id="p-goals">
+            <li data-g="bpm">Faça o pêndulo bater 60 tiques por minuto, um por segundo</li>
+            <li data-g="mass">Troque a massa com o pêndulo balançando. O ritmo muda?</li>
+            <li data-g="moon">Leve o pêndulo para a Lua e meça de novo</li>
+            <li data-g="wide">Solte de 80° ou mais e compare com a fórmula</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORDA -->
+    <section class="pane" id="pane-corda" role="tabpanel" aria-labelledby="tab-corda" hidden>
+      <p class="question">Violão, piano e berimbau: a nota vem de uma corda vibrando. Três coisas decidem qual nota sai: o comprimento, o quanto a corda está esticada e o quanto ela pesa.</p>
+      <div class="lab">
+        <div class="stage">
+          <canvas id="s-canvas" aria-label="Corda presa, esticada por um peso pendurado numa roldana"></canvas>
+        </div>
+        <div class="panel">
+          <div class="field">
+            <label for="s-L">Comprimento que vibra <output id="s-L-out" for="s-L"></output></label>
+            <input type="range" id="s-L" />
+          </div>
+          <div class="field">
+            <label for="s-m">Peso pendurado <output id="s-m-out" for="s-m"></output></label>
+            <input type="range" id="s-m" />
+          </div>
+          <div class="field">
+            <span id="s-str-label">Corda de aço</span>
+            <div class="seg" id="s-str" role="group" aria-labelledby="s-str-label"></div>
+          </div>
+          <button class="btn" id="s-pluck" type="button">Tocar a corda</button>
+          <button class="btn ghost" id="s-fix" type="button" hidden>Trocar a corda</button>
+
+          <div class="readings">
+            <div class="measured"><small>Frequência</small><b id="s-f">—</b></div>
+            <div><small>Nota</small><b id="s-note">—</b></div>
+            <div><small>Tensão na corda</small><b id="s-T">—</b></div>
+          </div>
+          <div class="status" id="s-status" aria-live="polite"></div>
+
+          <details class="math">
+            <summary>A conta</summary>
+            <div id="s-math"></div>
+          </details>
+
+          <h2 class="goals-title">Desafios</h2>
+          <ul class="goals" id="s-goals">
+            <li data-g="la">Toque um Lá 440 (a nota que as orquestras usam para afinar)</li>
+            <li data-g="octL">Suba uma oitava mudando só o comprimento</li>
+            <li data-g="octM">Suba uma oitava mudando só o peso</li>
+            <li data-g="snap">Arrebente uma corda</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script type="module" src="./main.js"></script>
 </body>
