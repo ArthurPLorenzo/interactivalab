@@ -27,7 +27,9 @@ export const PRE={
 export function buildPreset(comps,s){
  s.forEach(s=>{const t=s[0];if(t==='wire')addWire(comps,N(...s[1]),N(...s[2]));else if(t==='npn')comps.push(mk('npn',[N(...s[1]),N(...s[2]),N(...s[3])]));else comps.push(mk(t,[N(...s[1]),N(...s[2])],s[3]));});
  return comps;}
-function resetBoard(){S.comps=[];S.Vn={};S.selC=null;S.probe=null;S.pend=[];S.mm.r=S.mm.b=null;S.mm.next='r';}
+function resetBoard(){S.ghost=null;S.comps=[];S.Vn={};S.selC=null;S.probe=null;S.pend=[];S.mm.r=S.mm.b=null;S.mm.next='r';}
+// Troca a placa por estas peças (usado pelas missões).
+export function loadBoard(parts,msg){resetBoard();buildPreset(S.comps,parts);save();setTool('sel');renderInsp();if(msg)log(msg);}
 export function loadPreset(k){const pr=PRE[k];if(!pr)return;resetBoard();
  buildPreset(S.comps,pr.s);
  save();setTool('sel');renderInsp();log(pr.m);}

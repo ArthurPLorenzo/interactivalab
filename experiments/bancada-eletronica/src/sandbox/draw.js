@@ -5,14 +5,15 @@ import {COLS,ROWS,px,py} from '../grid.js';
 import {LEDP} from '../sim/models.js';
 import {groundNode,pairKey} from '../sim/circuit.js';
 import {BC,fmtR,fVn} from '../format.js';
+import {N} from '../grid.js';
 import {tapComp,tapNode} from './tools.js';
 
 const NS='http://www.w3.org/2000/svg';
 const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
 const HW={wire:0,res:18,bat:5,cap:5,led:10,dio:10,sw:14,pin:17,mot:15};
-let gP,gF,gL,gN;
+let gG,gP,gF,gL,gN;
 
-export function initBoard(){const svg=$('#s-board');gP=el('g',{},svg);gF=el('g',{},svg);gL=el('g',{},svg);gN=el('g',{},svg);}
+export function initBoard(){const svg=$('#s-board');gG=el('g',{},svg);gP=el('g',{},svg);gF=el('g',{},svg);gL=el('g',{},svg);gN=el('g',{},svg);}
 
 function lab(x,y,t,anchor,p){const e=el('text',{x,y,'text-anchor':anchor||'middle',class:'silk'},p||gL);e.textContent=t;return e;}
 function flowEl(x1,y1,x2,y2){const e=el('path',{class:'sflow',d:`M${x1} ${y1}L${x2} ${y2}`},gF);e.style.opacity=0;return {e,x1,y1,x2,y2,dir:1,on:false,q:0};}
@@ -77,10 +78,24 @@ function drawNodes(){
   el('path',{d:`M${x} ${y} C ${x} ${y+70}, ${ex} ${290}, ${ex} 345`,stroke:col,'stroke-width':3.5,fill:'none',opacity:.9,'pointer-events':'none'},gN);
   el('circle',{cx:x,cy:y,r:7.5,fill:col,stroke:'#fff','stroke-width':2,'pointer-events':'none'},gN);});
 }
-export function drawAll(){[gP,gF,gL,gN].forEach(g=>g.replaceChildren());
+export function drawAll(){[gG,gP,gF,gL,gN].forEach(g=>g.replaceChildren());drawGhost();
  const grp={};S.comps.forEach(c=>{if(c.type!=='npn')(grp[pairKey(c)]=grp[pairKey(c)]||[]).push(c);});
  S.comps.forEach(c=>{if(c.type==='npn')return drawNPN(c);const g=grp[pairKey(c)],i=g.indexOf(c);draw2(c,g.length>1?(i-(g.length-1)/2)*(g.some(x=>x.type==='mot'||x.type==='pin')?38:24):0);});
  drawNodes();}
+// "Mostrar onde encaixar": peças tracejadas, pontas do multímetro e o fio a tirar.
+const GNAME={bat:'bateria',res:'resistor',led:'LED',dio:'diodo',sw:'chave',pin:'Arduino',mot:'motor',cap:'capacitor'};
+const POLAR=['bat','led','dio','pin','cap'];
+function drawGhost(){const gh=S.ghost;if(!gh)return;const P=([c,r])=>[px(N(c,r)),py(N(c,r))],G='#ffd36b';
+ const tag=(x,y,t,col)=>{const e=el('text',{x,y,'text-anchor':'middle',fill:col||G,'font-size':12,'font-weight':700,'font-family':'Atkinson Hyperlegible, sans-serif'},gG);e.textContent=t;};
+ (gh.parts||[]).forEach(([t,a,b,p])=>{const [x1,y1]=P(a),[x2,y2]=P(b);
+  el('line',{x1,y1,x2,y2,stroke:G,'stroke-width':t==='wire'?3:7,'stroke-dasharray':t==='wire'?'4 6':'2 5','stroke-linecap':'round',opacity:.85},gG);
+  if(t==='wire')return;const mx=(x1+x2)/2,my=(y1+y2)/2,hz=Math.abs(x2-x1)>=Math.abs(y2-y1);
+  tag(hz?mx:mx+30,hz?my-14:my+4,GNAME[t]+(t==='res'&&p?' '+fmtR(p.R):''));
+  if(POLAR.includes(t)){tag(x1+(x1-x2)*0.25,y1+(y1-y2)*0.25+4,'1º');tag(x2+(x2-x1)*0.25,y2+(y2-y1)*0.25+4,'2º');}});
+ if(gh.cut){const [x1,y1]=P(gh.cut[0]),[x2,y2]=P(gh.cut[1]),mx=(x1+x2)/2,my=(y1+y2)/2;
+  el('path',{d:`M${mx-8} ${my-8}L${mx+8} ${my+8}M${mx+8} ${my-8}L${mx-8} ${my+8}`,stroke:'#ff6b5b','stroke-width':4,'stroke-linecap':'round'},gG);tag(mx+44,my+4,'tire este fio','#ff9b8f');}
+ if(gh.probes)[['r','#ff6b5b','vermelha'],['b','#ffffff','preta']].forEach(([k,col,name])=>{const [x,y]=P(gh.probes[k]);
+  el('circle',{cx:x,cy:y,r:10,fill:'none',stroke:col,'stroke-width':2.5,'stroke-dasharray':'3 3'},gG);tag(x+(k==='r'?-34:34),y+4,'ponta '+name,col);});}
 function setFlow(f,I){const a=Math.abs(I);
  if(!(a>=2e-5)||!isFinite(a)){if(f.on){f.e.style.opacity=0;f.on=false;}return;}
  const dir=I>0?1:-1;if(dir!==f.dir){f.dir=dir;f.e.setAttribute('d',dir>0?`M${f.x1} ${f.y1}L${f.x2} ${f.y2}`:`M${f.x2} ${f.y2}L${f.x1} ${f.y1}`);}

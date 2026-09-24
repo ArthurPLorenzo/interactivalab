@@ -37,7 +37,7 @@ const TIP={
  pin:'Um pino de saída do Arduino: em HIGH dá 5 V, em LOW dá 0 V. Com a ferramenta Mexer, toque nele para trocar. Aguenta no máximo 40 mA: bom para um LED, fraco para um motor.',
  mot:'Gira quando passa corrente. Na partida puxa muita corrente. Se for desligado de repente, dá um pico de tensão: proteja com um diodo em paralelo.',
  mm:'Encoste as pontas nos pontos da placa. A leitura aparece no painel do multímetro, onde você escolhe tensão (V), corrente (A) ou resistência (Ω).',
- del:'Toque na peça que quer tirar da placa.'
+ del:'Toque no meio da peça que quer tirar da placa. Num ponto onde chega um fio só, tocar no ponto também tira o fio.'
 };
 // Valores que a próxima peça colocada vai ter.
 const P={bat:9,res:470,led:'vermelho',cap:1000,rate:16};
@@ -61,7 +61,10 @@ export function setTool(t){S.tool=t;S.pend=[];if(t==='mm')S.mm.show=true;tb.quer
 
 export function tapNode(k){const mm=S.mm;
  if(S.tool==='sel'){S.probe=k;S.selC=null;drawAll();renderInsp();return;}
- if(S.tool==='del')return;
+ // Apagar tocando num ponto: se só um fio chega nele, é esse fio. Senão, pede para tocar no meio do fio.
+ if(S.tool==='del'){const w=S.comps.filter(c=>c.type==='wire'&&c.n.includes(k));
+  if(w.length===1){S.comps=S.comps.filter(x=>x!==w[0]);if(S.selC===w[0])S.selC=null;save();drawAll();renderInsp();hint();return;}
+  hint(w.length?'Vários fios se encontram nesse ponto. Toque no meio do fio que quer tirar, entre dois pontos.':'Toque no meio da peça que quer tirar, entre dois pontos.',true);return;}
  if(S.tool==='mm'){if(mm.next==='r')mm.b=null;mm[mm.next]=k;mm.next=mm.next==='r'?'b':'r';mm.stress=0;drawAll();hint();updateMeter();return;}
  if(S.pend.includes(k)){S.pend=[];drawAll();hint('Cancelado. Comece de novo.');return;}
  const pend=S.pend;pend.push(k);let err=null;

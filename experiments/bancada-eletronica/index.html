@@ -3,23 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bancada de eletrônica</title>
+<title>Bancada de eletrônica — InteractivaLab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<div class="wrap">
+<header class="lab-bar">
+  <a href="/" class="lab-home">InteractivaLab</a>
+</header>
+<main class="exp-page">
   <h1>Bancada de eletrônica</h1>
   <p class="lead">Monte, ligue e veja o que acontece. Aqui queimar peça é de graça.</p>
 
-  <nav>
-    <button class="tab on" data-p="p-pecas">As peças</button>
-    <button class="tab" data-p="p-led">LED + resistor</button>
-    <button class="tab" data-p="p-cap">Capacitor</button>
-    <button class="tab" data-p="p-tr">Transistor</button>
-    <button class="tab" data-p="p-sbx">Sandbox</button>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-p="p-pecas">As peças</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="p-led">LED + resistor</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="p-cap">Capacitor</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="p-tr">Transistor</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="p-sbx">Sandbox</button>
   </nav>
 
   <!-- PEÇAS -->
@@ -284,8 +287,14 @@
           </label>
           <button class="btn ghost" id="s-clear">Limpar a placa</button>
         </div>
+        <div class="ctrl" id="s-insp" style="margin-top:14px"></div>
+        <div class="ctrl" style="margin-top:14px">
+          <h3>O que aconteceu</h3>
+          <ul class="log" id="s-log"></ul>
+        </div>
       </div>
       <div>
+        <div class="ctrl missions" id="s-missions"></div>
         <div class="ctrl meter" id="s-mm" hidden style="margin-bottom:14px">
           <div class="mm-top"><h3>Multímetro</h3><button class="link" id="s-mm-off" type="button">Guardar o multímetro</button></div>
           <div class="lcd" aria-live="polite"><span id="s-mm-val">- - -</span><small id="s-mm-unit"></small></div>
@@ -294,15 +303,10 @@
           <div class="status" id="s-mm-status"></div>
           <button class="btn" id="s-mm-fuse" hidden>Trocar o fusível</button>
         </div>
-        <div class="ctrl" id="s-insp"></div>
-        <div class="ctrl" style="margin-top:14px">
-          <h3>O que aconteceu</h3>
-          <ul class="log" id="s-log"></ul>
-        </div>
       </div>
     </div>
   </section>
-</div>
+</main>
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>

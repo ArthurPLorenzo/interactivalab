@@ -8,14 +8,16 @@ import {loadPreset,clearBoard} from './presets.js';
 import {renderInsp,liveInsp} from './panels/inspector.js';
 import {initMeter,updateMeter} from './panels/multimeter.js';
 import {log} from './panels/log.js';
+import {initMissions,missionTick} from './panels/missions.js';
 
-let fc=0;
+let fc=0,mc=0;
 function loop(){
  if(!$('#p-sbx').hidden&&S.comps.length){
   for(let i=0;i<16;i++)step(S,log);
   if(S.dirty){S.dirty=false;drawAll();renderInsp();save();}
   visuals();if(++fc%8===0){liveInsp();updateMeter();}
  }
+ if(!$("#p-sbx").hidden&&++mc%8===0)missionTick();
  requestAnimationFrame(loop);}
 
 export function initSandbox(){
@@ -23,6 +25,7 @@ export function initSandbox(){
  $('#s-preset').onchange=e=>{loadPreset(e.target.value);e.target.value='';};
  $('#s-clear').onclick=clearBoard;
  initMeter();
+ initMissions();
  if(!load())loadPreset('led');
  setTool('sel');renderInsp();
  requestAnimationFrame(loop);
