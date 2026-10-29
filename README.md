@@ -2,6 +2,8 @@
 
 Experimentos de física que rodam no navegador, para curiosos e estudantes do ensino médio. Cada experimento começa com uma pergunta, deixa testar à vontade e mostra os números para conferir com as fórmulas. O som aparece quando ajuda a entender um conceito, como a nota de uma corda ou o tique de um pêndulo.
 
+**Abrir no navegador:** https://arthurplorenzo.github.io/interactivalab/
+
 ## Experimentos
 
 | Área | Experimento | O que se aprende |
@@ -37,6 +39,12 @@ bun run preview        # serve o build
 bun run test           # testes da física
 bun run build:bancada  # a bancada como um único HTML autocontido, em dist-bancada/
 ```
+
+## Publicação
+
+O site é publicado no GitHub Pages pelo workflow `.github/workflows/pages.yml`. A cada push na `master`, ele instala com bun, roda os testes, faz o build e publica `dist/`. Se algum teste falhar, nada é publicado.
+
+O Vite usa `base: './'` e os links entre páginas são relativos, para o site funcionar dentro da subpasta `/interactivalab/`. Ao criar um experimento, use links relativos (`../../` para voltar ao início), nunca começando com `/`.
 
 ## Estrutura
 
