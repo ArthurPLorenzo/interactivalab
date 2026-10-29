@@ -2,6 +2,8 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  // caminhos relativos: o site funciona na raiz e em subpasta (GitHub Pages em /interactivalab/)
+  base: './',
   build: {
     target: 'esnext',
     rollupOptions: {
